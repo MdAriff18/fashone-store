@@ -185,7 +185,7 @@ export default function App() {
 
       <header className="header">
         <a className="wordmark" href="#home" aria-label="FASHONE home">
-          FASHONE<span>.</span>
+          FASHONE.<span></span>
         </a>
 
         <nav className="main-nav" aria-label="Main navigation">

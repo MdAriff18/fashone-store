@@ -1,5 +1,4 @@
-
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700;800;900&display=swap');
 
 :root {
   font-family: 'DM Sans', sans-serif;
@@ -50,8 +49,13 @@ button:focus-visible, a:focus-visible, input:focus-visible {
 }
 
 .announcement {
-  background: #111;
-  color: #fff;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 11;
+  background: transparent;
+  color: black;
   text-align: center;
   padding: 10px 12px;
   font-size: 9px;
@@ -60,25 +64,32 @@ button:focus-visible, a:focus-visible, input:focus-visible {
 }
 
 .header {
+  position: absolute;
+  top: 32px;
+  left: 0;
+  width: 100%;
   height: 82px;
   padding: 0 6%;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 25px;
-  background: #fff;
+  background: transparent;
+  color: #fff;
+  z-index: 10;
 }
 
 .wordmark {
-  font-family: 'Oswald', sans-serif;
-  font-size: 31px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 36px;
   font-weight: 600;
-  letter-spacing: 2px;
+  letter-spacing: 3px;
   white-space: nowrap;
+  color: #fff;
 }
 
 .wordmark span {
-  color: #999;
+  color: #ddd;
 }
 
 .main-nav, .header-actions {
@@ -88,9 +99,12 @@ button:focus-visible, a:focus-visible, input:focus-visible {
 }
 
 .main-nav a, .icon-button, .bag-button {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 1.1px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: black;
 }
 
 .main-nav a {
@@ -98,7 +112,7 @@ button:focus-visible, a:focus-visible, input:focus-visible {
 }
 
 .main-nav a:hover {
-  border-bottom: 1px solid #111;
+  border-bottom: 1px solid #fff;
 }
 
 .icon-button, .bag-button {
@@ -132,7 +146,7 @@ button:focus-visible, a:focus-visible, input:focus-visible {
 }
 
 .hero-shade {
-  background: linear-gradient(90deg, rgba(0,0,0,.68), rgba(0,0,0,.16) 72%);
+  display: none;
 }
 
 .hero-copy {
@@ -149,22 +163,23 @@ button:focus-visible, a:focus-visible, input:focus-visible {
 }
 
 .eyebrow.light {
-  color: #ddd;
+  color: maroon;
 }
 
 .hero h1, .brand-banner h2 {
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: clamp(47px, 7.5vw, 94px);
   line-height: .99;
-  letter-spacing: -1px;
+  letter-spacing: 1px;
   font-weight: 500;
   margin: 0;
+  color: maroon;
 }
 
 .hero-description {
   font-size: 13px;
   line-height: 1.9;
-  color: #eee;
+  color: maroon;
   margin: 24px 0 30px;
 }
 
@@ -232,7 +247,7 @@ button:focus-visible, a:focus-visible, input:focus-visible {
 }
 
 .section-heading h2, .newsletter h2 {
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: clamp(29px, 4vw, 43px);
   line-height: 1.1;
   font-weight: 500;
@@ -420,7 +435,7 @@ button:focus-visible, a:focus-visible, input:focus-visible {
 }
 
 .empty-results h3 {
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 26px;
   font-weight: 500;
 }
@@ -517,7 +532,9 @@ button:focus-visible, a:focus-visible, input:focus-visible {
 
 .footer-logo {
   display: inline-block;
-  font-size: 27px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 32px;
+  letter-spacing: 2px;
 }
 
 .footer > p {
@@ -571,8 +588,8 @@ button:focus-visible, a:focus-visible, input:focus-visible {
 }
 
 .drawer-heading h2 {
-  font-family: 'Oswald', sans-serif;
-  font-size: 26px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 30px;
   font-weight: 500;
   margin: 0;
 }
@@ -713,7 +730,7 @@ button:focus-visible, a:focus-visible, input:focus-visible {
   }
 
   .wordmark {
-    font-size: 26px;
+    font-size: 30px;
   }
 
   .product-grid {
@@ -738,14 +755,16 @@ button:focus-visible, a:focus-visible, input:focus-visible {
   }
 
   .header {
+    top: 32px;
     height: auto;
     min-height: 72px;
     flex-wrap: wrap;
     padding: 15px 5%;
+    background: transparent;
   }
 
   .wordmark {
-    font-size: 25px;
+    font-size: 27px;
   }
 
   .main-nav {
@@ -770,7 +789,7 @@ button:focus-visible, a:focus-visible, input:focus-visible {
   }
 
   .hero-shade {
-    background: linear-gradient(90deg, rgba(0,0,0,.68), rgba(0,0,0,.18));
+    display: none;
   }
 
   .hero-copy {
@@ -779,6 +798,7 @@ button:focus-visible, a:focus-visible, input:focus-visible {
 
   .hero h1 {
     font-size: clamp(48px, 12vw, 65px);
+
   }
 
   .intro-strip {
@@ -842,4 +862,45 @@ button:focus-visible, a:focus-visible, input:focus-visible {
   .cart-drawer {
     padding: 22px 18px;
   }
+}
+
+
+/* FASHONE - Hero Heading */
+.hero .hero-copy h1 {
+  color: maroon;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: clamp(47px, 7.5vw, 94px);
+  line-height: 1;
+  letter-spacing: -1.5px;
+  text-transform: uppercase;
+}
+
+
+/* Move hero content slightly down */
+.hero-copy {
+  transform: translate( -15px, 90px);
+}
+
+
+
+.hero .hero-copy h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(58px, 8vw, 100px);
+  font-weight: 400;
+  color: black;
+  line-height: 0.95;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+
+/* FASHONE Brand Logo */
+.wordmark {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 38px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: maroon;
 }
