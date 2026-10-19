@@ -182,6 +182,8 @@ function readSavedCart() {
   }
 }
 
+
+
 function BrandIntro() {
   const letters = ["F", "A", "S", "H", "O", "N", "E"];
 
@@ -189,22 +191,55 @@ function BrandIntro() {
     <div className="fashone-intro" role="status" aria-label="FASHONE">
       <div className="intro-image" />
 
-      <div className="intro-overlay">
-        <div className="intro-word">
-          {letters.map((letter, index) => (
-            <span
-              key={letter}
-              className="intro-letter"
-              style={{ animationDelay: `${index * 0.28}s, 3.1s` }}
-            >
-              {letter}
-            </span>
-          ))}
-        </div>
-      </div>
+      <svg
+        className="intro-mask"
+        viewBox="0 0 1000 500"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <defs>
+          <mask
+            id="fashone-cutout"
+            maskUnits="userSpaceOnUse"
+            x="0"
+            y="0"
+            width="1000"
+            height="500"
+          >
+            <rect width="1000" height="500" fill="white" />
+
+            {letters.map((letter, index) => (
+              <text
+                key={letter}
+                x={index * 66 + 302}
+                y="275"
+                textAnchor="middle"
+                fill="black"
+                fontFamily="Cinzel, Georgia, serif"
+                fontSize="94"
+                fontWeight="600"
+                className="intro-letter"
+                style={{ animationDelay: `${index * 0.24}s` }}
+              >
+                {letter}
+              </text>
+            ))}
+          </mask>
+        </defs>
+
+        <rect
+          width="1000"
+          height="1000"
+          fill="#777"
+          fillOpacity="0.85"
+          mask="url(#fashone-cutout)"
+        />
+      </svg>
     </div>
   );
 }
+
+
 
 export default function App() {
   const [showIntro, setShowIntro] = useState(true);
@@ -220,7 +255,7 @@ export default function App() {
   useEffect(() => {
     const timer = window.setTimeout(() => {
       setShowIntro(false);
-    }, 4000);
+    }, 3800);
 
     return () => window.clearTimeout(timer);
   }, []);
