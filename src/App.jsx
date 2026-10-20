@@ -1073,26 +1073,71 @@ export default function App() {
             </section>
           </div>
         )}
-                {orderSuccess && (
-          <div className="drawer-backdrop">
-            <section className="cart-drawer order-success">
-              <p className="eyebrow">THANK YOU FOR CHOOSING FASHONE</p>
-              <h2>ORDER PLACED</h2>
-              <p>Your order has been saved successfully.</p>
 
-              <p>
-                Order number: <strong>{orderSuccess.order_number}</strong>
-              </p>
+          {orderSuccess && (
+            <div className="drawer-backdrop">
+              <section className="cart-drawer order-success">
+                <p className="eyebrow">THANK YOU FOR CHOOSING FASHONE</p>
 
-              <button
-                className="checkout-button"
-                onClick={() => setOrderSuccess(null)}
-              >
-                CONTINUE SHOPPING
-              </button>
-            </section>
-          </div>
-        )}
+                <h2>ORDER PLACED</h2>
+
+                <p>Your order has been saved successfully.</p>
+
+                <p>
+                  Order number:{" "}
+                  <strong>{orderSuccess.order_number}</strong>
+                </p>
+
+                <button
+                  type="button"
+                  className="continue-button"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(
+                        orderSuccess.order_number
+                      );
+                      setNotice("Order number copied successfully!");
+                    } catch {
+                      setNotice(
+                        `Your order number is ${orderSuccess.order_number}`
+                      );
+                    }
+                  }}
+                >
+                  COPY ORDER NUMBER
+                </button>
+
+                {notice && <p role="status">{notice}</p>}
+
+                <a
+                  href="/track-order"
+                  className="checkout-button"
+                  style={{
+                    display: "block",
+                    textAlign: "center",
+                    textDecoration: "none",
+                    boxSizing: "border-box",
+                    marginTop: 12,
+                  }}
+                >
+                  TRACK YOUR ORDER →
+                </a>
+
+                <button
+                  type="button"
+                  className="continue-button"
+                  style={{ marginTop: 12 }}
+                  onClick={() => {
+                    setOrderSuccess(null);
+                    setNotice("");
+                  }}
+                >
+                  CONTINUE SHOPPING
+                </button>
+              </section>
+            </div>
+          )}
+
 
       </div>
     </>
