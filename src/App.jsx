@@ -250,6 +250,18 @@ export default function App() {
   const [notice, setNotice] = useState("");
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedSize, setSelectedSize] = useState("M");
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [placingOrder, setPlacingOrder] = useState(false);
+  const [orderSuccess, setOrderSuccess] = useState(null);
+
+  const [customer, setCustomer] = useState({
+    customer_name: "",
+    phone: "",
+    address_line: "",
+    city: "",
+    state: "",
+    postal_code: "",
+  });
 
 
   useEffect(() => {
@@ -284,6 +296,69 @@ export default function App() {
     (sum, item) => sum + item.price * item.quantity,
     0
   );
+
+  const placeOrder = async (event) => {
+  event.preventDefault();
+
+  if (cart.length === 0) {
+    setNotice("Your bag is empty.");
+    return;
+  }
+
+  setPlacingOrder(true);
+  setNotice("");
+
+  try {
+    const response = await fetch("http://localhost:5000/api/orders", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...customer,
+        items: cart.map((item) => ({
+          id: item.id,
+          name: item.name,
+          size: item.size || null,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+        subtotal,
+        shipping_fee: 0,
+        total: subtotal,
+        payment_method: "COD",
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Unable to place order.");
+    }
+
+    setOrderSuccess(data.order);
+    setCart([]);
+    setCheckoutOpen(false);
+    setCartOpen(false);
+    setCustomer({
+      customer_name: "",
+      phone: "",
+      address_line: "",
+      city: "",
+      state: "",
+      postal_code: "",
+    });
+    setNotice("");
+  } catch (error) {
+    setNotice(
+      error.message === "Failed to fetch"
+        ? "Backend connection failed. Please check that your server is running."
+        : error.message
+    );
+  } finally {
+    setPlacingOrder(false);
+  }
+};
 
   function addToCart(product) {
     setCart((current) => {
@@ -821,11 +896,10 @@ export default function App() {
 
                     <button
                       className="checkout-button"
-                      onClick={() =>
-                        setNotice(
-                          "Demo checkout only. Connect a backend and payment gateway before accepting real orders."
-                        )
-                      }
+                      onClick={() => {
+                        setNotice("");
+                        setCheckoutOpen(true);
+                      }}
                     >
                       PROCEED TO CHECKOUT ↗
                     </button>
@@ -842,6 +916,183 @@ export default function App() {
             </aside>
           </div>
         )}
+        {checkoutOpen && (
+          <div
+            className="drawer-backdrop"
+            onClick={() => setCheckoutOpen(false)}
+          >
+            <section
+              className="cart-drawer checkout-panel"
+              onClick={(event) => event.stopPropagation()}
+              aria-label="Checkout"
+            >
+              <div className="drawer-heading">
+                <div>
+                  <p className="eyebrow">ALMOST YOURS</p>
+                  <h2>DELIVERY DETAILS</h2>
+                </div>
+
+                <button
+                  className="close-button"
+                  onClick={() => setCheckoutOpen(false)}
+                  aria-label="Close checkout"
+                >
+                  ×
+                </button>
+              </div>
+
+              {notice && <p className="cart-notice">{notice}</p>}
+
+              <form onSubmit={placeOrder} className="checkout-form">
+                <label>
+                  Full name
+                  <input
+                    required
+                    autoComplete="name"
+                    value={customer.customer_name}
+                    onChange={(e) =>
+                      setCustomer({
+                        ...customer,
+                        customer_name: e.target.value,
+                      })
+                    }
+                  />
+                </label>
+
+                <label>
+                  Phone number
+                  <input
+                    required
+                    type="tel"
+                    inputMode="numeric"
+                    pattern="[0-9]{10}"
+                    title="Enter a 10-digit Indian phone number"
+                    autoComplete="tel"
+                    value={customer.phone}
+                    onChange={(e) =>
+                      setCustomer({
+                        ...customer,
+                        phone: e.target.value,
+                      })
+                    }
+                  />
+                </label>
+
+                <label>
+                  House number and street address
+                  <textarea
+                    required
+                    autoComplete="street-address"
+                    value={customer.address_line}
+                    onChange={(e) =>
+                      setCustomer({
+                        ...customer,
+                        address_line: e.target.value,
+                      })
+                    }
+                  />
+                </label>
+
+                <label>
+                  City
+                  <input
+                    required
+                    autoComplete="address-level2"
+                    value={customer.city}
+                    onChange={(e) =>
+                      setCustomer({
+                        ...customer,
+                        city: e.target.value,
+                      })
+                    }
+                  />
+                </label>
+
+                <label>
+                  State
+                  <input
+                    required
+                    autoComplete="address-level1"
+                    value={customer.state}
+                    onChange={(e) =>
+                      setCustomer({
+                        ...customer,
+                        state: e.target.value,
+                      })
+                    }
+                  />
+                </label>
+
+                <label>
+                  PIN code
+                  <input
+                    required
+                    inputMode="numeric"
+                    pattern="[0-9]{6}"
+                    title="Enter a 6-digit PIN code"
+                    autoComplete="postal-code"
+                    value={customer.postal_code}
+                    onChange={(e) =>
+                      setCustomer({
+                        ...customer,
+                        postal_code: e.target.value,
+                      })
+                    }
+                  />
+                </label>
+
+                <div className="checkout-total">
+                  <span>Payment method</span>
+                  <strong>Cash on Delivery (COD)</strong>
+                </div>
+
+                <div className="checkout-total">
+                  <span>Subtotal</span>
+                  <strong>{money(subtotal)}</strong>
+                </div>
+
+                <div className="checkout-total">
+                  <span>Shipping</span>
+                  <strong>FREE</strong>
+                </div>
+
+                <div className="checkout-total">
+                  <span>Total</span>
+                  <strong>{money(subtotal)}</strong>
+                </div>
+
+                <button
+                  type="submit"
+                  className="checkout-button"
+                  disabled={placingOrder}
+                >
+                  {placingOrder ? "PLACING ORDER..." : "PLACE COD ORDER ↗"}
+                </button>
+              </form>
+            </section>
+          </div>
+        )}
+                {orderSuccess && (
+          <div className="drawer-backdrop">
+            <section className="cart-drawer order-success">
+              <p className="eyebrow">THANK YOU FOR CHOOSING FASHONE</p>
+              <h2>ORDER PLACED</h2>
+              <p>Your order has been saved successfully.</p>
+
+              <p>
+                Order number: <strong>{orderSuccess.order_number}</strong>
+              </p>
+
+              <button
+                className="checkout-button"
+                onClick={() => setOrderSuccess(null)}
+              >
+                CONTINUE SHOPPING
+              </button>
+            </section>
+          </div>
+        )}
+
       </div>
     </>
   );
