@@ -257,6 +257,41 @@ app.post("/api/orders", async (req, res) => {
 });
 
 
+app.get("/api/track-order", async (req, res) => {
+  try {
+    const orderNumber = String(req.query.order_number || "").trim();
+    const phone = String(req.query.phone || "").trim();
+
+    if (!orderNumber || !phone) {
+      return res.status(400).json({
+        error: "Enter your order number and phone number.",
+      });
+    }
+
+    const result = await pool.query(
+      `SELECT order_number, order_status, payment_status, created_at
+       FROM public.orders
+       WHERE LOWER(order_number) = LOWER($1)
+         AND regexp_replace(phone, '\\D', '', 'g') =
+             regexp_replace($2, '\\D', '', 'g')
+       LIMIT 1`,
+      [orderNumber, phone]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        error: "Order not found. Check your order number and phone number.",
+      });
+    }
+
+    res.json({ order: result.rows[0] });
+  } catch (error) {
+    console.error("Track order failed:", error.message);
+    res.status(500).json({ error: "Unable to track order right now." });
+  }
+});
+
+
 app.listen(PORT, () => {
   console.log(`FASHONE API running on http://localhost:${PORT}`);
 });
