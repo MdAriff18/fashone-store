@@ -45,6 +45,62 @@ app.get("/api/db-test", async (req, res) => {
 });
 
 
+app.get("/api/orders", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT id, order_number, customer_name, phone,
+              address_line, city, state, postal_code,
+              items, subtotal, shipping_fee, total,
+              payment_method, payment_status, order_status,
+              created_at
+       FROM public.orders
+       ORDER BY created_at DESC`
+    );
+
+    res.json({ orders: result.rows });
+  } catch (error) {
+    console.error("Fetch orders failed:", error.message);
+    res.status(500).json({ error: "Unable to fetch orders." });
+  }
+});
+
+
+app.patch("/api/orders/:id/status", async (req, res) => {
+  try {
+    const allowedStatuses = [
+      "PLACED",
+      "PROCESSING",
+      "SHIPPED",
+      "DELIVERED",
+      "CANCELLED"
+    ];
+
+    const { order_status } = req.body;
+
+    if (!allowedStatuses.includes(order_status)) {
+      return res.status(400).json({ error: "Invalid order status." });
+    }
+
+    const result = await pool.query(
+      `UPDATE public.orders
+       SET order_status = $1
+       WHERE id = $2
+       RETURNING id, order_number, order_status`,
+      [order_status, req.params.id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Order not found." });
+    }
+
+    res.json({ message: "Order status updated.", order: result.rows[0] });
+  } catch (error) {
+    console.error("Update order failed:", error.message);
+    res.status(500).json({ error: "Unable to update order." });
+  }
+});
+
+
 app.post("/api/orders", async (req, res) => {
   try {
     const {
