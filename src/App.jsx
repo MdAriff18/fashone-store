@@ -1,6 +1,7 @@
-
+import PolicyPage from "./PolicyPage";
 import { useEffect, useMemo, useState } from "react";
 import "./index.css";
+
 
 const products = [
   {
@@ -241,7 +242,7 @@ function BrandIntro() {
 
 
 
-export default function App() {
+function StoreApp() {
   const [showIntro, setShowIntro] = useState(true);
   const [category, setCategory] = useState("All");
   const [search, setSearch] = useState("");
@@ -1083,10 +1084,11 @@ export default function App() {
 
                 <p>Your order has been saved successfully.</p>
 
-                <p>
-                  Order number:{" "}
+                <div className="order-number-box">
+                  <span className="eyebrow">YOUR ORDER NUMBER</span>
                   <strong>{orderSuccess.order_number}</strong>
-                </p>
+                  <span className="order-confirmed">✓ ORDER CONFIRMED</span>
+                </div>
 
                 <button
                   type="button"
@@ -1142,4 +1144,21 @@ export default function App() {
       </div>
     </>
   );
+}
+
+export default function App() {
+  const path = window.location.pathname.replace(/\/+$/, "") || "/";
+
+  const policyPaths = [
+    "/about",
+    "/contact",
+    "/shipping-policy",
+    "/return-policy",
+  ];
+
+  if (policyPaths.includes(path)) {
+    return <PolicyPage path={path} />;
+  }
+
+  return <StoreApp />;
 }
