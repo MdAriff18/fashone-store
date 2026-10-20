@@ -198,16 +198,26 @@ export default function Admin() {
                 </p>
               ))}
 
+
             <label style={styles.label}>Order status</label>
             <select
-              style={styles.input}
-              value={order.order_status || "Pending"}
-              onChange={(e) => updateStatus(order.id, e.target.value)}
+            style={styles.input}
+            value={(order.order_status || "PLACED").toUpperCase()}
+            onChange={(e) => updateStatus(order.id, e.target.value)}
             >
-              {["Pending", "Confirmed", "Processing", "Shipped", "Delivered", "Cancelled"].map((status) => (
-                <option key={status} value={status}>{status}</option>
-              ))}
+            {[
+                { value: "PLACED", label: "Pending" },
+                { value: "PROCESSING", label: "Processing" },
+                { value: "SHIPPED", label: "Shipped" },
+                { value: "DELIVERED", label: "Delivered" },
+                { value: "CANCELLED", label: "Cancelled" },
+            ].map((status) => (
+                <option key={status.value} value={status.value}>
+                {status.label}
+                </option>
+            ))}
             </select>
+
           </section>
         ))}
       </div>
