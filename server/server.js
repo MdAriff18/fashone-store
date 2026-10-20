@@ -17,6 +17,62 @@ const pool = new Pool({
 app.use(cors());
 app.use(express.json());
 
+
+const jwt = require("jsonwebtoken");
+
+app.post("/api/admin/login", (req, res) => {
+  const { username, password } = req.body;
+
+  if (
+    !process.env.ADMIN_USERNAME ||
+    !process.env.ADMIN_PASSWORD ||
+    !process.env.ADMIN_TOKEN_SECRET
+  ) {
+    return res.status(500).json({
+      error: "Admin authentication is not configured."
+    });
+  }
+
+  if (
+    username !== process.env.ADMIN_USERNAME ||
+    password !== process.env.ADMIN_PASSWORD
+  ) {
+    return res.status(401).json({
+      error: "Invalid username or password."
+    });
+  }
+
+  const token = jwt.sign(
+    { role: "admin" },
+    process.env.ADMIN_TOKEN_SECRET,
+    { expiresIn: "2h" }
+  );
+
+  res.json({ message: "Admin login successful.", token });
+});
+
+function requireAdmin(req, res, next) {
+  const authHeader = req.headers.authorization || "";
+  const [scheme, token] = authHeader.split(" ");
+
+  if (scheme !== "Bearer" || !token) {
+    return res.status(401).json({ error: "Admin login required." });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.ADMIN_TOKEN_SECRET);
+
+    if (decoded.role !== "admin") {
+      return res.status(403).json({ error: "Admin access required." });
+    }
+
+    next();
+  } catch {
+    return res.status(401).json({ error: "Invalid or expired token." });
+  }
+}
+
+
 app.get("/", (req, res) => {
   res.json({ message: "FASHONE API is running!" });
 });
@@ -45,7 +101,7 @@ app.get("/api/db-test", async (req, res) => {
 });
 
 
-app.get("/api/orders", async (req, res) => {
+app.get("/api/orders", requireAdmin, async (req, res) => {
   try {
     const result = await pool.query(
       `SELECT id, order_number, customer_name, phone,
@@ -65,7 +121,7 @@ app.get("/api/orders", async (req, res) => {
 });
 
 
-app.patch("/api/orders/:id/status", async (req, res) => {
+app.patch("/api/orders/:id/status", requireAdmin, async (req, res) => {
   try {
     const allowedStatuses = [
       "PLACED",
@@ -104,7 +160,7 @@ app.patch("/api/orders/:id/status", async (req, res) => {
 app.post("/api/orders", async (req, res) => {
   try {
     const {
-      customer_name,
+      customer_name,    
       phone,
       address_line,
       city,
