@@ -309,7 +309,7 @@ export default function App() {
   setNotice("");
 
   try {
-    const response = await fetch("http://localhost:5000/api/orders", {
+    const response = await fetch("https://fashone-backend.onrender.com", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
