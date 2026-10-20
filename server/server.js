@@ -131,11 +131,22 @@ app.patch("/api/orders/:id/status", requireAdmin, async (req, res) => {
       "CANCELLED"
     ];
 
-    const { order_status } = req.body;
+
+    const rawStatus = req.body.order_status;
+
+    const order_status =
+    typeof rawStatus === "string"
+        ? rawStatus.trim().toUpperCase()
+        : "";
 
     if (!allowedStatuses.includes(order_status)) {
-      return res.status(400).json({ error: "Invalid order status." });
+    return res.status(400).json({
+        error: "Invalid order status.",
+        receivedStatus: rawStatus,
+        allowedStatuses,
+    });
     }
+
 
     const result = await pool.query(
       `UPDATE public.orders
