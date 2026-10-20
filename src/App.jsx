@@ -309,7 +309,7 @@ export default function App() {
   setNotice("");
 
   try {
-    const response = await fetch("https://fashone-backend.onrender.com", {
+    const response = await fetch("https://fashone-backend.onrender.com/api/orders", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -407,6 +407,7 @@ export default function App() {
             <a href="#home">HOME</a>
             <a href="#collection">SHOP MEN</a>
             <a href="#story">OUR STORY</a>
+            <a href="/track-order">TRACK ORDER</a>
           </nav>
 
           <div className="header-actions">
