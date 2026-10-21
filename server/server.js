@@ -305,35 +305,23 @@ app.get("/api/track-order", async (req, res) => {
 });
 
 
+
 app.get("/api/my-orders", async (req, res) => {
   try {
-    const orderNumber = String(req.query.order_number || "").trim();
     const phone = String(req.query.phone || "").trim();
+    const digits = phone.replace(/\D/g, "");
 
-    if (!orderNumber || !phone) {
+    // Accept Indian mobile number with optional country code.
+    const mobile = digits.length >= 10
+      ? digits.slice(-10)
+      : "";
+
+    if (!/^[6-9]\d{9}$/.test(mobile)) {
       return res.status(400).json({
-        error: "Enter your order number and phone number.",
+        error: "Enter a valid 10-digit Indian mobile number.",
       });
     }
 
-    // Verify that this order number belongs to the supplied phone.
-    const verified = await pool.query(
-      `SELECT phone
-       FROM public.orders
-       WHERE LOWER(order_number) = LOWER($1)
-         AND regexp_replace(phone, '\\D', '', 'g') =
-             regexp_replace($2, '\\D', '', 'g')
-       LIMIT 1`,
-      [orderNumber, phone]
-    );
-
-    if (verified.rowCount === 0) {
-      return res.status(404).json({
-        error: "Order not found. Check your order number and phone number.",
-      });
-    }
-
-    // Return the verified phone number's order history.
     const result = await pool.query(
       `SELECT
          id,
@@ -347,10 +335,12 @@ app.get("/api/my-orders", async (req, res) => {
          order_status,
          created_at
        FROM public.orders
-       WHERE regexp_replace(phone, '\\D', '', 'g') =
-             regexp_replace($1, '\\D', '', 'g')
+       WHERE RIGHT(
+         regexp_replace(phone, '\\D', '', 'g'),
+         10
+       ) = $1
        ORDER BY created_at DESC`,
-      [verified.rows[0].phone]
+      [mobile]
     );
 
     res.json({ orders: result.rows });
@@ -361,6 +351,7 @@ app.get("/api/my-orders", async (req, res) => {
     });
   }
 });
+
 
 
 
