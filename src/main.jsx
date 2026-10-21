@@ -6,6 +6,7 @@ import "./index.css";
 import App from "./App.jsx";
 import Admin from "./Admin.jsx";
 import TrackOrder from "./TrackOrder.jsx";
+import MyOrders from "./MyOrders.jsx";
 import PolicyPage from "./PolicyPage.jsx";
 
 createRoot(document.getElementById("root")).render(
@@ -15,6 +16,7 @@ createRoot(document.getElementById("root")).render(
         <Route path="/" element={<App />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/track-order" element={<TrackOrder />} />
+        <Route path="/orders" element={<MyOrders />} />
 
         <Route path="/about" element={<PolicyPage path="/about" />} />
         <Route path="/contact" element={<PolicyPage path="/contact" />} />

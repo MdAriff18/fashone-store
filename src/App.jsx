@@ -1,6 +1,7 @@
 import PolicyPage from "./PolicyPage";
 import { useEffect, useMemo, useState } from "react";
 import "./index.css";
+import MyOrders from "./MyOrders";
 
 
 const products = [
@@ -409,6 +410,7 @@ function StoreApp() {
             <a href="#collection">SHOP MEN</a>
             <a href="#story">OUR STORY</a>
             <a href="#about">ABOUT</a>
+            <a href="/orders">ORDERS</a>
             <a href="/track-order">TRACK ORDER</a>
           </nav>
 
@@ -1250,6 +1252,10 @@ export default function App() {
     "/shipping-policy",
     "/return-policy",
   ];
+
+  if (path === "/orders") {
+  return <MyOrders />;
+  }
 
   if (policyPaths.includes(path)) {
     return <PolicyPage path={path} />;
