@@ -305,6 +305,65 @@ app.get("/api/track-order", async (req, res) => {
 });
 
 
+app.get("/api/my-orders", async (req, res) => {
+  try {
+    const orderNumber = String(req.query.order_number || "").trim();
+    const phone = String(req.query.phone || "").trim();
+
+    if (!orderNumber || !phone) {
+      return res.status(400).json({
+        error: "Enter your order number and phone number.",
+      });
+    }
+
+    // Verify that this order number belongs to the supplied phone.
+    const verified = await pool.query(
+      `SELECT phone
+       FROM public.orders
+       WHERE LOWER(order_number) = LOWER($1)
+         AND regexp_replace(phone, '\\D', '', 'g') =
+             regexp_replace($2, '\\D', '', 'g')
+       LIMIT 1`,
+      [orderNumber, phone]
+    );
+
+    if (verified.rowCount === 0) {
+      return res.status(404).json({
+        error: "Order not found. Check your order number and phone number.",
+      });
+    }
+
+    // Return the verified phone number's order history.
+    const result = await pool.query(
+      `SELECT
+         id,
+         order_number,
+         items,
+         subtotal,
+         shipping_fee,
+         total,
+         payment_method,
+         payment_status,
+         order_status,
+         created_at
+       FROM public.orders
+       WHERE regexp_replace(phone, '\\D', '', 'g') =
+             regexp_replace($1, '\\D', '', 'g')
+       ORDER BY created_at DESC`,
+      [verified.rows[0].phone]
+    );
+
+    res.json({ orders: result.rows });
+  } catch (error) {
+    console.error("Order history failed:", error.message);
+    res.status(500).json({
+      error: "Unable to load order history right now.",
+    });
+  }
+});
+
+
+
 app.listen(PORT, () => {
   console.log(`FASHONE API running on http://localhost:${PORT}`);
 });

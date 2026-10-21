@@ -15,6 +15,12 @@ const prettyStatus = (status = "") => {
   return labels[status.toUpperCase()] || status;
 };
 
+const money = (amount) =>
+  `₹${Number(amount || 0).toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+
 export default function TrackOrder() {
   const [orderNumber, setOrderNumber] = useState("");
   const [phone, setPhone] = useState("");
@@ -51,6 +57,19 @@ export default function TrackOrder() {
 
   const status = order ? prettyStatus(order.order_status) : "";
 
+  const items = Array.isArray(order?.items)
+    ? order.items
+    : typeof order?.items === "string"
+      ? (() => {
+          try {
+            const parsed = JSON.parse(order.items);
+            return Array.isArray(parsed) ? parsed : [];
+          } catch {
+            return [];
+          }
+        })()
+      : [];
+
   return (
     <main style={styles.page}>
       <a href="/" style={styles.back}>← BACK TO FASHONE</a>
@@ -59,7 +78,7 @@ export default function TrackOrder() {
         <p style={styles.eyebrow}>FASHONE / ORDER SERVICES</p>
         <h1 style={styles.heading}>Track your order.</h1>
         <p style={styles.muted}>
-          Enter your order number and phone number to see your latest order status.
+          Enter your order number and phone number to see your order status and details.
         </p>
 
         <form onSubmit={trackOrder}>
@@ -94,15 +113,70 @@ export default function TrackOrder() {
           <section style={styles.result}>
             <p style={styles.eyebrow}>ORDER FOUND</p>
             <p style={styles.orderNumber}>{order.order_number}</p>
+
             <p style={styles.label}>Current status</p>
             <h2 style={styles.status}>{status}</h2>
+
             <p style={styles.muted}>
-              Payment: {order.payment_status || "Pending"}
+              Payment: {order.payment_status || "PENDING"}
+            </p>
+            <p style={styles.muted}>
+              Method: {order.payment_method || "COD"}
             </p>
             <p style={styles.muted}>
               Ordered: {new Date(order.created_at).toLocaleString("en-IN")}
             </p>
+
+            <div style={styles.divider} />
+
+            <h3 style={styles.sectionHeading}>ORDER SUMMARY</h3>
+
+            {items.length > 0 ? (
+              items.map((item, index) => (
+                <div key={`${item.id || item.name}-${item.size || ""}-${index}`} style={styles.item}>
+                  <div style={styles.itemInfo}>
+                    <p style={styles.productName}>
+                      {item.name || item.title || "Product"}
+                    </p>
+                    {item.size && (
+                      <p style={styles.itemDetail}>Size: {item.size}</p>
+                    )}
+                    <p style={styles.itemDetail}>
+                      Qty: {Number(item.quantity || 1)}
+                    </p>
+                  </div>
+
+                  <p style={styles.itemPrice}>
+                    {money(
+                      Number(item.price || 0) *
+                      Number(item.quantity || 1)
+                    )}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <p style={styles.muted}>
+                Product details are not available for this order.
+              </p>
+            )}
+
+            <div style={styles.divider} />
+
+            <div style={styles.totalRow}>
+              <span>Subtotal</span>
+              <span>{money(order.subtotal)}</span>
+            </div>
+            <div style={styles.totalRow}>
+              <span>Shipping</span>
+              <span>{money(order.shipping_fee)}</span>
+            </div>
+            <div style={styles.totalRow}>
+              <strong>Total</strong>
+              <strong>{money(order.total)}</strong>
+            </div>
+
             <button
+              type="button"
               style={styles.secondary}
               onClick={() => {
                 setOrder(null);
@@ -181,6 +255,8 @@ const styles = {
     cursor: "pointer",
   },
   secondary: {
+    width: "100%",
+    marginTop: 24,
     padding: 12,
     border: "1px solid #ccc",
     background: "#fff",
@@ -198,4 +274,46 @@ const styles = {
   },
   orderNumber: { fontSize: 14, fontWeight: 700 },
   status: { fontSize: 26, margin: "8px 0" },
+  divider: {
+    height: 1,
+    background: "#ddd",
+    margin: "22px 0",
+  },
+  sectionHeading: {
+    fontSize: 12,
+    letterSpacing: 1.5,
+    marginBottom: 18,
+  },
+  item: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    gap: 16,
+    padding: "14px 0",
+    borderBottom: "1px solid #eee",
+  },
+  itemInfo: { minWidth: 0 },
+  productName: {
+    fontSize: 14,
+    fontWeight: 700,
+    margin: "0 0 7px",
+  },
+  itemDetail: {
+    color: "#666",
+    fontSize: 12,
+    margin: "4px 0",
+  },
+  itemPrice: {
+    fontSize: 13,
+    fontWeight: 700,
+    whiteSpace: "nowrap",
+    margin: 0,
+  },
+  totalRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: 12,
+    padding: "8px 0",
+    fontSize: 13,
+  },
 };
