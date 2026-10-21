@@ -408,6 +408,7 @@ function StoreApp() {
             <a href="#home">HOME</a>
             <a href="#collection">SHOP MEN</a>
             <a href="#story">OUR STORY</a>
+            <a href="#about">ABOUT</a>
             <a href="/track-order">TRACK ORDER</a>
           </nav>
 
@@ -601,6 +602,7 @@ function StoreApp() {
             )}
           </section>
 
+
           <section className="our-story section-wrap" id="story">
             <div className="story-label">
               <span className="story-line"></span>
@@ -615,6 +617,7 @@ function StoreApp() {
                   <br />
                   <span>MORE MEANING.</span>
                 </h2>
+
               </div>
 
               <div className="story-description">
@@ -629,8 +632,15 @@ function StoreApp() {
 
                 <p>
                   We believe in timeless essentials, thoughtful details, and
-                  versatile pieces that go beyond passing trends. No unnecessary
-                  noise. Just style that feels like you.
+                  versatile pieces that go beyond passing trends. Our approach
+                  to fashion is rooted in simplicity: pieces that work together,
+                  feel comfortable, and give you confidence wherever the day takes you.
+                </p>
+
+                <p>
+                  From everyday essentials to elevated looks, our vision is to
+                  make getting dressed feel natural. No unnecessary noise.
+                  No need to follow every trend. Just a style that feels like you.
                 </p>
 
                 <a href="#collection" className="story-link">
@@ -645,6 +655,81 @@ function StoreApp() {
               <span>FASHONE®</span>
             </div>
           </section>
+
+          <section className="our-story section-wrap" id="about">
+            <div className="story-label">
+              <span className="story-line"></span>
+              <p className="eyebrow">ABOUT FASHONE</p>
+            </div>
+
+            <div className="story-content">
+              <div className="story-heading">
+                <p className="story-number">02 — ABOUT US</p>
+                <h2>
+                  MORE THAN
+                  <br />
+                  <span>JUST CLOTHING.</span>
+                </h2>
+              </div>
+
+              <div className="story-description">
+                <p className="story-intro">
+                  Modern essentials. Everyday confidence.
+                </p>
+
+                <p>
+                  FASHONE is a modern menswear brand built around clean design,
+                  versatile essentials, and a confident approach to everyday style.
+                </p>
+
+                <p>
+                  We believe great style comes from the details — a considered
+                  fit, a simple silhouette, and colours that work effortlessly
+                  with the rest of your wardrobe.
+                </p>
+
+                <p>
+                  Our aim is to make fashion feel approachable and personal.
+                  Whether you're dressing for a casual day out or putting
+                  together a more refined look, we want your wardrobe to feel
+                  effortless and true to you.
+                </p>
+
+                <div className="about-values">
+                  <div>
+                    <span>01</span>
+                    <h3>OUR VISION</h3>
+                    <p>
+                      Timeless style that feels relevant today and beyond
+                      passing trends.
+                    </p>
+                  </div>
+
+                  <div>
+                    <span>02</span>
+                    <h3>OUR APPROACH</h3>
+                    <p>
+                      Clean design, versatile essentials, and a simple
+                      shopping experience.
+                    </p>
+                  </div>
+                </div>
+
+                <a href="#collection" className="story-link">
+                  EXPLORE OUR COLLECTION <span>↗</span>
+                </a>
+              </div>
+            </div>
+
+            <div className="story-bottom">
+              <span>MINIMAL BY DESIGN</span>
+              <span>TIMELESS IN STYLE</span>
+              <span>FASHONE®</span>
+            </div>
+          </section>
+
+
+
 
           <section className="brand-banner">
             <p className="eyebrow light">THE FASHONE PHILOSOPHY</p>
@@ -690,17 +775,27 @@ function StoreApp() {
           </section>
         </main>
 
+
         <footer className="footer">
-          <a className="wordmark footer-logo" href="#home">
+          <a className="wordmark footer-logo" href="/#home">
             FASHONE<span>.</span>
           </a>
 
           <p>MODERN ESSENTIALS. EVERYDAY CONFIDENCE.</p>
 
+          <nav className="footer-links" aria-label="Footer navigation">
+            <a href="/about">ABOUT US</a>
+            <a href="/contact">CONTACT</a>
+            <a href="/shipping-policy">SHIPPING POLICY</a>
+            <a href="/return-policy">RETURNS & REFUNDS</a>
+            <a href="/track-order">TRACK ORDER</a>
+          </nav>
+
           <p className="footer-small">
             © {new Date().getFullYear()} FASHONE. ALL RIGHTS RESERVED.
           </p>
         </footer>
+
 
         {selectedProduct && (
           <div

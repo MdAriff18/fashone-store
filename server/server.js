@@ -269,7 +269,18 @@ app.get("/api/track-order", async (req, res) => {
     }
 
     const result = await pool.query(
-      `SELECT order_number, order_status, payment_status, created_at
+      `SELECT
+         id,
+         order_number,
+         customer_name,
+         items,
+         subtotal,
+         shipping_fee,
+         total,
+         payment_method,
+         payment_status,
+         order_status,
+         created_at
        FROM public.orders
        WHERE LOWER(order_number) = LOWER($1)
          AND regexp_replace(phone, '\\D', '', 'g') =
@@ -287,7 +298,9 @@ app.get("/api/track-order", async (req, res) => {
     res.json({ order: result.rows[0] });
   } catch (error) {
     console.error("Track order failed:", error.message);
-    res.status(500).json({ error: "Unable to track order right now." });
+    res.status(500).json({
+      error: "Unable to track order right now.",
+    });
   }
 });
 
