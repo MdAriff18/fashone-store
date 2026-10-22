@@ -2226,3 +2226,18 @@ section.our-story#about > .story-content > .story-description {
     row-gap: 10px;
   }
 }
+
+/* FASHONE Footer Links */
+footer a {
+  display: inline-block;
+  margin: 6px 12px 6px 0;
+  text-decoration: none;
+  color: inherit;
+  font-size: 12px;
+  letter-spacing: 1px;
+  transition: opacity 0.3s ease;
+}
+
+footer a:hover {
+  opacity: 0.6;
+}
