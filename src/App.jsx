@@ -1077,6 +1077,24 @@ function StoreApp() {
                   />
                 </label>
 
+                
+                <label>
+                  Email address
+                  <input
+                    type="email"
+                    autoComplete="email"
+                    placeholder="you@example.com"
+                    value={customer.email || ""}
+                    onChange={(e) =>
+                      setCustomer({
+                        ...customer,
+                        email: e.target.value,
+                      })
+                    }
+                  />
+                </label>
+
+
                 <label>
                   House number and street address
                   <textarea
