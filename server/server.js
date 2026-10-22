@@ -1,3 +1,4 @@
+
 const express = require("express");
 const cors = require("cors");
 const { Pool } = require("pg");
@@ -17,9 +18,8 @@ const pool = new Pool({
 app.use(cors());
 app.use(express.json());
 
-
 // ========================================
-// RESEND EMAIL NOTIFICATION FOR NEW ORDERS
+// ADMIN ORDER EMAIL NOTIFICATION
 // ========================================
 
 async function sendOrderNotification(order) {
@@ -94,14 +94,90 @@ Please check the FASHONE Admin dashboard.
       data.id
     );
   } catch (error) {
-    // Email failure must not cancel a saved customer order.
+    console.error("Resend email failed:", error.message);
+  }
+}
+
+// ========================================
+// CUSTOMER ORDER CONFIRMATION EMAIL
+// ========================================
+
+async function sendCustomerConfirmation(order) {
+  try {
+    if (!process.env.RESEND_API_KEY || !order.email) {
+      console.log(
+        "Customer email not provided; skipping confirmation."
+      );
+      return;
+    }
+
+    console.log(
+      "Sending customer confirmation email through Resend..."
+    );
+
+    const itemsText = JSON.stringify(order.items, null, 2);
+
+    const response = await fetch(
+      "https://api.resend.com/emails",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: "FASHONE Orders <onboarding@resend.dev>",
+          to: [order.email],
+          subject: `Your FASHONE Order Confirmed: ${order.orderNumber}`,
+          text: `
+Hi ${order.customer_name || "Customer"},
+
+Thank you for shopping with FASHONE!
+
+Your order has been received successfully.
+
+Order Number: ${order.orderNumber}
+Order Status: ${order.order_status || "PLACED"}
+Phone: ${order.phone}
+
+Items:
+${itemsText}
+
+Subtotal: Rs. ${order.subtotal}
+Shipping: Rs. ${order.shipping_fee}
+Total: Rs. ${order.total}
+Payment Method: ${order.payment_method}
+
+Thank you for choosing FASHONE.
+          `,
+        }),
+      }
+    );
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      console.error(
+        "Customer confirmation email failed:",
+        response.status,
+        data.message || JSON.stringify(data)
+      );
+      return;
+    }
+
+    console.log(
+      "Customer confirmation email sent:",
+      order.email,
+      "Resend ID:",
+      data.id
+    );
+  } catch (error) {
     console.error(
-      "Resend email failed:",
+      "Customer confirmation email failed:",
       error.message
     );
   }
 }
-
 
 // ========================================
 // ADMIN LOGIN
@@ -141,7 +217,6 @@ app.post("/api/admin/login", (req, res) => {
   });
 });
 
-
 // ========================================
 // ADMIN AUTHENTICATION MIDDLEWARE
 // ========================================
@@ -176,7 +251,6 @@ function requireAdmin(req, res, next) {
   }
 }
 
-
 // ========================================
 // HOME & HEALTH CHECK
 // ========================================
@@ -193,7 +267,6 @@ app.get("/api/health", (req, res) => {
     service: "FASHONE Backend",
   });
 });
-
 
 // ========================================
 // DATABASE CONNECTION TEST
@@ -221,7 +294,6 @@ app.get("/api/db-test", async (req, res) => {
     });
   }
 });
-
 
 // ========================================
 // GET ALL ORDERS - ADMIN ONLY
@@ -265,7 +337,6 @@ app.get("/api/orders", requireAdmin, async (req, res) => {
     });
   }
 });
-
 
 // ========================================
 // UPDATE ORDER STATUS - ADMIN ONLY
@@ -330,9 +401,8 @@ app.patch(
   }
 );
 
-
 // ========================================
-// CREATE NEW ORDER + EMAIL NOTIFICATION
+// CREATE NEW ORDER + EMAIL NOTIFICATIONS
 // ========================================
 
 app.post("/api/orders", async (req, res) => {
@@ -342,6 +412,7 @@ app.post("/api/orders", async (req, res) => {
     const {
       customer_name,
       phone,
+      email,
       address_line,
       city,
       state,
@@ -353,7 +424,8 @@ app.post("/api/orders", async (req, res) => {
       payment_method = "COD",
     } = req.body;
 
-    // Validate required fields
+    // Validate required fields.
+    // Email is optional.
     if (
       !customer_name ||
       !phone ||
@@ -371,7 +443,7 @@ app.post("/api/orders", async (req, res) => {
       });
     }
 
-    // Validate amounts and payment method
+    // Validate amounts and payment method.
     if (
       !["COD"].includes(payment_method) ||
       !Number.isFinite(Number(subtotal)) ||
@@ -386,14 +458,14 @@ app.post("/api/orders", async (req, res) => {
       });
     }
 
-    // Generate unique order number
+    // Generate unique order number.
     const orderNumber =
       "FASH-" +
       Date.now() +
       "-" +
       Math.floor(1000 + Math.random() * 9000);
 
-    // Save order in database
+    // Save order in database.
     const result = await pool.query(
       `INSERT INTO public.orders (
         order_number,
@@ -438,22 +510,40 @@ app.post("/api/orders", async (req, res) => {
       orderNumber
     );
 
-    // Send notification after the order has been saved.
-    // If email fails, the saved order remains valid.
-    await sendOrderNotification({
-      orderNumber,
-      customer_name,
-      phone,
-      address_line,
-      city,
-      state,
-      postal_code,
-      items,
-      subtotal,
-      shipping_fee,
-      total,
-      payment_method,
-    });
+    // Send both emails after saving the order.
+    // Email failure must not cancel a saved order.
+    await Promise.all([
+      sendOrderNotification({
+        orderNumber,
+        customer_name,
+        phone,
+        address_line,
+        city,
+        state,
+        postal_code,
+        items,
+        subtotal,
+        shipping_fee,
+        total,
+        payment_method,
+      }),
+
+      sendCustomerConfirmation({
+        orderNumber,
+        order_status: result.rows[0].order_status,
+        customer_name,
+        phone,
+        email:
+          typeof email === "string"
+            ? email.trim()
+            : "",
+        items,
+        subtotal,
+        shipping_fee,
+        total,
+        payment_method,
+      }),
+    ]);
 
     return res.status(201).json({
       message: "Order placed successfully!",
@@ -470,7 +560,6 @@ app.post("/api/orders", async (req, res) => {
     });
   }
 });
-
 
 // ========================================
 // TRACK A SPECIFIC ORDER
@@ -536,7 +625,6 @@ app.get("/api/track-order", async (req, res) => {
   }
 });
 
-
 // ========================================
 // MY ORDERS - LOOK UP USING MOBILE NUMBER
 // ========================================
@@ -596,7 +684,6 @@ app.get("/api/my-orders", async (req, res) => {
     });
   }
 });
-
 
 // ========================================
 // START SERVER
