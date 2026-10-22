@@ -43,6 +43,15 @@ async function sendOrderNotification(order) {
       },
     });
 
+    console.log("EMAIL CONFIG CHECK:", {
+      hasEmailUser: Boolean(process.env.EMAIL_USER),
+      hasEmailPass: Boolean(process.env.EMAIL_PASS),
+      hasNotifyEmail: Boolean(process.env.ORDER_NOTIFY_EMAIL),
+    });
+
+    await transporter.verify();
+    console.log("GMAIL SMTP CONNECTION VERIFIED");
+
     const itemsText = JSON.stringify(order.items, null, 2);
 
     await transporter.sendMail({
