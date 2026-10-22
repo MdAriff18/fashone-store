@@ -1,8 +1,7 @@
-
 const express = require("express");
-const nodemailer = require("nodemailer");
 const cors = require("cors");
 const { Pool } = require("pg");
+const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const app = express();
@@ -19,46 +18,39 @@ app.use(cors());
 app.use(express.json());
 
 
-const jwt = require("jsonwebtoken");
-
+// ========================================
+// RESEND EMAIL NOTIFICATION FOR NEW ORDERS
+// ========================================
 
 async function sendOrderNotification(order) {
-  console.log("EMAIL FUNCTION STARTED");
-
   try {
     if (
-      !process.env.EMAIL_USER ||
-      !process.env.EMAIL_PASS ||
+      !process.env.RESEND_API_KEY ||
       !process.env.ORDER_NOTIFY_EMAIL
     ) {
-      console.error("Order email notification is not configured.");
+      console.error(
+        "Resend email notification is not configured."
+      );
       return;
     }
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-
-    console.log("EMAIL CONFIG CHECK:", {
-      hasEmailUser: Boolean(process.env.EMAIL_USER),
-      hasEmailPass: Boolean(process.env.EMAIL_PASS),
-      hasNotifyEmail: Boolean(process.env.ORDER_NOTIFY_EMAIL),
-    });
-
-    await transporter.verify();
-    console.log("GMAIL SMTP CONNECTION VERIFIED");
-
     const itemsText = JSON.stringify(order.items, null, 2);
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: process.env.ORDER_NOTIFY_EMAIL,
-      subject: `New FASHONE Order: ${order.orderNumber}`,
-      text: `
+    console.log("Sending order email through Resend...");
+
+    const response = await fetch(
+      "https://api.resend.com/emails",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: "FASHONE Orders <onboarding@resend.dev>",
+          to: [process.env.ORDER_NOTIFY_EMAIL],
+          subject: `New FASHONE Order: ${order.orderNumber}`,
+          text: `
 A new order has been placed on FASHONE.
 
 Order Number: ${order.orderNumber}
@@ -78,17 +70,42 @@ Shipping: Rs. ${order.shipping_fee}
 Total: Rs. ${order.total}
 Payment: ${order.payment_method}
 
-Please check the FASHONE Admin dashboard for order management.
-      `,
-    });
+Please check the FASHONE Admin dashboard.
+          `,
+        }),
+      }
+    );
 
-    console.log("Order notification email sent:", order.orderNumber);
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      console.error(
+        "Resend email failed:",
+        response.status,
+        data.message || JSON.stringify(data)
+      );
+      return;
+    }
+
+    console.log(
+      "Order notification email sent:",
+      order.orderNumber,
+      "Resend ID:",
+      data.id
+    );
   } catch (error) {
     // Email failure must not cancel a saved customer order.
-    console.error("Order notification email failed:", error.message);
+    console.error(
+      "Resend email failed:",
+      error.message
+    );
   }
 }
 
+
+// ========================================
+// ADMIN LOGIN
+// ========================================
 
 app.post("/api/admin/login", (req, res) => {
   const { username, password } = req.body;
@@ -99,7 +116,7 @@ app.post("/api/admin/login", (req, res) => {
     !process.env.ADMIN_TOKEN_SECRET
   ) {
     return res.status(500).json({
-      error: "Admin authentication is not configured."
+      error: "Admin authentication is not configured.",
     });
   }
 
@@ -108,7 +125,7 @@ app.post("/api/admin/login", (req, res) => {
     password !== process.env.ADMIN_PASSWORD
   ) {
     return res.status(401).json({
-      error: "Invalid username or password."
+      error: "Invalid username or password.",
     });
   }
 
@@ -118,38 +135,69 @@ app.post("/api/admin/login", (req, res) => {
     { expiresIn: "2h" }
   );
 
-  res.json({ message: "Admin login successful.", token });
+  res.json({
+    message: "Admin login successful.",
+    token,
+  });
 });
+
+
+// ========================================
+// ADMIN AUTHENTICATION MIDDLEWARE
+// ========================================
 
 function requireAdmin(req, res, next) {
   const authHeader = req.headers.authorization || "";
   const [scheme, token] = authHeader.split(" ");
 
   if (scheme !== "Bearer" || !token) {
-    return res.status(401).json({ error: "Admin login required." });
+    return res.status(401).json({
+      error: "Admin login required.",
+    });
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.ADMIN_TOKEN_SECRET);
+    const decoded = jwt.verify(
+      token,
+      process.env.ADMIN_TOKEN_SECRET
+    );
 
     if (decoded.role !== "admin") {
-      return res.status(403).json({ error: "Admin access required." });
+      return res.status(403).json({
+        error: "Admin access required.",
+      });
     }
 
     next();
   } catch {
-    return res.status(401).json({ error: "Invalid or expired token." });
+    return res.status(401).json({
+      error: "Invalid or expired token.",
+    });
   }
 }
 
 
+// ========================================
+// HOME & HEALTH CHECK
+// ========================================
+
 app.get("/", (req, res) => {
-  res.json({ message: "FASHONE API is running!" });
+  res.json({
+    message: "FASHONE API is running!",
+  });
 });
 
 app.get("/api/health", (req, res) => {
-  res.json({ status: "OK", service: "FASHONE Backend" });
+  res.json({
+    status: "OK",
+    service: "FASHONE Backend",
+  });
 });
+
+
+// ========================================
+// DATABASE CONNECTION TEST
+// ========================================
 
 app.get("/api/db-test", async (req, res) => {
   try {
@@ -162,7 +210,11 @@ app.get("/api/db-test", async (req, res) => {
       databaseTime: result.rows[0].database_time,
     });
   } catch (error) {
-    console.error("Database connection failed:", error.message);
+    console.error(
+      "Database connection failed:",
+      error.message
+    );
+
     res.status(500).json({
       status: "Error",
       message: "Database connection failed",
@@ -171,81 +223,124 @@ app.get("/api/db-test", async (req, res) => {
 });
 
 
+// ========================================
+// GET ALL ORDERS - ADMIN ONLY
+// ========================================
+
 app.get("/api/orders", requireAdmin, async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT id, order_number, customer_name, phone,
-              address_line, city, state, postal_code,
-              items, subtotal, shipping_fee, total,
-              payment_method, payment_status, order_status,
-              created_at
+      `SELECT
+         id,
+         order_number,
+         customer_name,
+         phone,
+         address_line,
+         city,
+         state,
+         postal_code,
+         items,
+         subtotal,
+         shipping_fee,
+         total,
+         payment_method,
+         payment_status,
+         order_status,
+         created_at
        FROM public.orders
        ORDER BY created_at DESC`
     );
 
-    res.json({ orders: result.rows });
-  } catch (error) {
-    console.error("Fetch orders failed:", error.message);
-    res.status(500).json({ error: "Unable to fetch orders." });
-  }
-});
-
-
-app.patch("/api/orders/:id/status", requireAdmin, async (req, res) => {
-  try {
-    const allowedStatuses = [
-      "PLACED",
-      "PROCESSING",
-      "SHIPPED",
-      "DELIVERED",
-      "CANCELLED"
-    ];
-
-
-    const rawStatus = req.body.order_status;
-
-    const order_status =
-    typeof rawStatus === "string"
-        ? rawStatus.trim().toUpperCase()
-        : "";
-
-    if (!allowedStatuses.includes(order_status)) {
-    return res.status(400).json({
-        error: "Invalid order status.",
-        receivedStatus: rawStatus,
-        allowedStatuses,
+    res.json({
+      orders: result.rows,
     });
-    }
-
-
-    const result = await pool.query(
-      `UPDATE public.orders
-       SET order_status = $1
-       WHERE id = $2
-       RETURNING id, order_number, order_status`,
-      [order_status, req.params.id]
+  } catch (error) {
+    console.error(
+      "Fetch orders failed:",
+      error.message
     );
 
-    if (result.rowCount === 0) {
-      return res.status(404).json({ error: "Order not found." });
-    }
-
-    res.json({ message: "Order status updated.", order: result.rows[0] });
-  } catch (error) {
-    console.error("Update order failed:", error.message);
-    res.status(500).json({ error: "Unable to update order." });
+    res.status(500).json({
+      error: "Unable to fetch orders.",
+    });
   }
 });
 
 
+// ========================================
+// UPDATE ORDER STATUS - ADMIN ONLY
+// ========================================
+
+app.patch(
+  "/api/orders/:id/status",
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const allowedStatuses = [
+        "PLACED",
+        "PROCESSING",
+        "SHIPPED",
+        "DELIVERED",
+        "CANCELLED",
+      ];
+
+      const rawStatus = req.body.order_status;
+
+      const order_status =
+        typeof rawStatus === "string"
+          ? rawStatus.trim().toUpperCase()
+          : "";
+
+      if (!allowedStatuses.includes(order_status)) {
+        return res.status(400).json({
+          error: "Invalid order status.",
+          receivedStatus: rawStatus,
+          allowedStatuses,
+        });
+      }
+
+      const result = await pool.query(
+        `UPDATE public.orders
+         SET order_status = $1
+         WHERE id = $2
+         RETURNING id, order_number, order_status`,
+        [order_status, req.params.id]
+      );
+
+      if (result.rowCount === 0) {
+        return res.status(404).json({
+          error: "Order not found.",
+        });
+      }
+
+      res.json({
+        message: "Order status updated.",
+        order: result.rows[0],
+      });
+    } catch (error) {
+      console.error(
+        "Update order failed:",
+        error.message
+      );
+
+      res.status(500).json({
+        error: "Unable to update order.",
+      });
+    }
+  }
+);
+
+
+// ========================================
+// CREATE NEW ORDER + EMAIL NOTIFICATION
+// ========================================
+
 app.post("/api/orders", async (req, res) => {
-
   console.log("NEW ORDER REQUEST RECEIVED");
-
 
   try {
     const {
-      customer_name,    
+      customer_name,
       phone,
       address_line,
       city,
@@ -258,6 +353,7 @@ app.post("/api/orders", async (req, res) => {
       payment_method = "COD",
     } = req.body;
 
+    // Validate required fields
     if (
       !customer_name ||
       !phone ||
@@ -275,6 +371,7 @@ app.post("/api/orders", async (req, res) => {
       });
     }
 
+    // Validate amounts and payment method
     if (
       !["COD"].includes(payment_method) ||
       !Number.isFinite(Number(subtotal)) ||
@@ -289,19 +386,37 @@ app.post("/api/orders", async (req, res) => {
       });
     }
 
+    // Generate unique order number
     const orderNumber =
-      "FASH-" + Date.now() + "-" +
+      "FASH-" +
+      Date.now() +
+      "-" +
       Math.floor(1000 + Math.random() * 9000);
 
+    // Save order in database
     const result = await pool.query(
       `INSERT INTO public.orders (
-        order_number, customer_name, phone, address_line,
-        city, state, postal_code, items, subtotal,
-        shipping_fee, total, payment_method
+        order_number,
+        customer_name,
+        phone,
+        address_line,
+        city,
+        state,
+        postal_code,
+        items,
+        subtotal,
+        shipping_fee,
+        total,
+        payment_method
       ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
+        $1, $2, $3, $4, $5, $6,
+        $7, $8, $9, $10, $11, $12
       )
-      RETURNING id, order_number, order_status, created_at`,
+      RETURNING
+        id,
+        order_number,
+        order_status,
+        created_at`,
       [
         orderNumber,
         customer_name,
@@ -318,7 +433,13 @@ app.post("/api/orders", async (req, res) => {
       ]
     );
 
-    console.log("ORDER SAVED; CALLING EMAIL");
+    console.log(
+      "ORDER SAVED; CALLING EMAIL",
+      orderNumber
+    );
+
+    // Send notification after the order has been saved.
+    // If email fails, the saved order remains valid.
     await sendOrderNotification({
       orderNumber,
       customer_name,
@@ -334,24 +455,37 @@ app.post("/api/orders", async (req, res) => {
       payment_method,
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       message: "Order placed successfully!",
       order: result.rows[0],
     });
-
   } catch (error) {
-    console.error("Order creation failed:", error.message);
-    res.status(500).json({
+    console.error(
+      "Order creation failed:",
+      error.message
+    );
+
+    return res.status(500).json({
       error: "Unable to place order. Please try again.",
     });
   }
 });
 
 
+// ========================================
+// TRACK A SPECIFIC ORDER
+// Requires order number + phone number
+// ========================================
+
 app.get("/api/track-order", async (req, res) => {
   try {
-    const orderNumber = String(req.query.order_number || "").trim();
-    const phone = String(req.query.phone || "").trim();
+    const orderNumber = String(
+      req.query.order_number || ""
+    ).trim();
+
+    const phone = String(
+      req.query.phone || ""
+    ).trim();
 
     if (!orderNumber || !phone) {
       return res.status(400).json({
@@ -382,13 +516,20 @@ app.get("/api/track-order", async (req, res) => {
 
     if (result.rowCount === 0) {
       return res.status(404).json({
-        error: "Order not found. Check your order number and phone number.",
+        error:
+          "Order not found. Check your order number and phone number.",
       });
     }
 
-    res.json({ order: result.rows[0] });
+    res.json({
+      order: result.rows[0],
+    });
   } catch (error) {
-    console.error("Track order failed:", error.message);
+    console.error(
+      "Track order failed:",
+      error.message
+    );
+
     res.status(500).json({
       error: "Unable to track order right now.",
     });
@@ -396,16 +537,23 @@ app.get("/api/track-order", async (req, res) => {
 });
 
 
+// ========================================
+// MY ORDERS - LOOK UP USING MOBILE NUMBER
+// ========================================
 
 app.get("/api/my-orders", async (req, res) => {
   try {
-    const phone = String(req.query.phone || "").trim();
+    const phone = String(
+      req.query.phone || ""
+    ).trim();
+
     const digits = phone.replace(/\D/g, "");
 
     // Accept Indian mobile number with optional country code.
-    const mobile = digits.length >= 10
-      ? digits.slice(-10)
-      : "";
+    const mobile =
+      digits.length >= 10
+        ? digits.slice(-10)
+        : "";
 
     if (!/^[6-9]\d{9}$/.test(mobile)) {
       return res.status(400).json({
@@ -434,9 +582,15 @@ app.get("/api/my-orders", async (req, res) => {
       [mobile]
     );
 
-    res.json({ orders: result.rows });
+    res.json({
+      orders: result.rows,
+    });
   } catch (error) {
-    console.error("Order history failed:", error.message);
+    console.error(
+      "Order history failed:",
+      error.message
+    );
+
     res.status(500).json({
       error: "Unable to load order history right now.",
     });
@@ -444,8 +598,12 @@ app.get("/api/my-orders", async (req, res) => {
 });
 
 
-
+// ========================================
+// START SERVER
+// ========================================
 
 app.listen(PORT, () => {
-  console.log(`FASHONE API running on http://localhost:${PORT}`);
+  console.log(
+    `FASHONE API running on port ${PORT}`
+  );
 });
