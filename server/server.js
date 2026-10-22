@@ -23,6 +23,8 @@ const jwt = require("jsonwebtoken");
 
 
 async function sendOrderNotification(order) {
+  console.log("EMAIL FUNCTION STARTED");
+
   try {
     if (
       !process.env.EMAIL_USER ||
@@ -228,7 +230,7 @@ app.patch("/api/orders/:id/status", requireAdmin, async (req, res) => {
 
 
 app.post("/api/orders", async (req, res) => {
-  
+
   console.log("NEW ORDER REQUEST RECEIVED");
 
 
@@ -307,7 +309,7 @@ app.post("/api/orders", async (req, res) => {
       ]
     );
 
-
+    console.log("ORDER SAVED; CALLING EMAIL");
     await sendOrderNotification({
       orderNumber,
       customer_name,
