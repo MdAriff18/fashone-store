@@ -18,8 +18,9 @@ const pool = new Pool({
 app.use(cors());
 app.use(express.json());
 
+
 // ========================================
-// ADMIN ORDER EMAIL NOTIFICATION
+// RESEND EMAIL NOTIFICATION FOR NEW ORDERS
 // ========================================
 
 async function sendOrderNotification(order) {
@@ -94,9 +95,14 @@ Please check the FASHONE Admin dashboard.
       data.id
     );
   } catch (error) {
-    console.error("Resend email failed:", error.message);
+    // Email failure must not cancel a saved customer order.
+    console.error(
+      "Resend email failed:",
+      error.message
+    );
   }
 }
+
 
 // ========================================
 // CUSTOMER ORDER CONFIRMATION EMAIL
@@ -104,18 +110,29 @@ Please check the FASHONE Admin dashboard.
 
 async function sendCustomerConfirmation(order) {
   try {
-    if (!process.env.RESEND_API_KEY || !order.email) {
+    const recipient =
+      typeof order.email === "string"
+        ? order.email.trim()
+        : "";
+
+    if (!process.env.RESEND_API_KEY || !recipient) {
       console.log(
         "Customer email not provided; skipping confirmation."
       );
       return;
     }
 
-    console.log(
-      "Sending customer confirmation email through Resend..."
-    );
+    const itemsText = (
+      Array.isArray(order.items) ? order.items : []
+    )
+      .map((item) => {
+        const sizeText = item.size
+          ? ` (Size ${item.size})`
+          : "";
 
-    const itemsText = JSON.stringify(order.items, null, 2);
+        return `- ${item.name}${sizeText} x ${item.quantity} — Rs. ${item.price}`;
+      })
+      .join("\n");
 
     const response = await fetch(
       "https://api.resend.com/emails",
@@ -127,17 +144,14 @@ async function sendCustomerConfirmation(order) {
         },
         body: JSON.stringify({
           from: "FASHONE Orders <onboarding@resend.dev>",
-          to: [order.email],
+          to: [recipient],
           subject: `Your FASHONE Order Confirmed: ${order.orderNumber}`,
-          text: `
-Hi ${order.customer_name || "Customer"},
+          text: `Hi ${order.customer_name || "Customer"},
 
-Thank you for shopping with FASHONE!
-
-Your order has been received successfully.
+Thank you for shopping with FASHONE! Your order has been received successfully.
 
 Order Number: ${order.orderNumber}
-Order Status: ${order.order_status || "PLACED"}
+Order Status: PLACED
 Phone: ${order.phone}
 
 Items:
@@ -148,8 +162,7 @@ Shipping: Rs. ${order.shipping_fee}
 Total: Rs. ${order.total}
 Payment Method: ${order.payment_method}
 
-Thank you for choosing FASHONE.
-          `,
+Thank you for choosing FASHONE.`,
         }),
       }
     );
@@ -167,17 +180,19 @@ Thank you for choosing FASHONE.
 
     console.log(
       "Customer confirmation email sent:",
-      order.email,
+      recipient,
       "Resend ID:",
       data.id
     );
   } catch (error) {
+    // A customer email failure must never cancel a saved order.
     console.error(
       "Customer confirmation email failed:",
       error.message
     );
   }
 }
+
 
 // ========================================
 // ADMIN LOGIN
@@ -217,6 +232,7 @@ app.post("/api/admin/login", (req, res) => {
   });
 });
 
+
 // ========================================
 // ADMIN AUTHENTICATION MIDDLEWARE
 // ========================================
@@ -251,6 +267,7 @@ function requireAdmin(req, res, next) {
   }
 }
 
+
 // ========================================
 // HOME & HEALTH CHECK
 // ========================================
@@ -267,6 +284,7 @@ app.get("/api/health", (req, res) => {
     service: "FASHONE Backend",
   });
 });
+
 
 // ========================================
 // DATABASE CONNECTION TEST
@@ -294,6 +312,7 @@ app.get("/api/db-test", async (req, res) => {
     });
   }
 });
+
 
 // ========================================
 // GET ALL ORDERS - ADMIN ONLY
@@ -337,6 +356,7 @@ app.get("/api/orders", requireAdmin, async (req, res) => {
     });
   }
 });
+
 
 // ========================================
 // UPDATE ORDER STATUS - ADMIN ONLY
@@ -401,6 +421,7 @@ app.patch(
   }
 );
 
+
 // ========================================
 // CREATE NEW ORDER + EMAIL NOTIFICATIONS
 // ========================================
@@ -424,8 +445,12 @@ app.post("/api/orders", async (req, res) => {
       payment_method = "COD",
     } = req.body;
 
+    console.log(
+      "Customer email received:",
+      email ? "YES" : "NO"
+    );
+
     // Validate required fields.
-    // Email is optional.
     if (
       !customer_name ||
       !phone ||
@@ -445,7 +470,7 @@ app.post("/api/orders", async (req, res) => {
 
     // Validate amounts and payment method.
     if (
-      !["COD"].includes(payment_method) ||
+      payment_method !== "COD" ||
       !Number.isFinite(Number(subtotal)) ||
       !Number.isFinite(Number(shipping_fee)) ||
       !Number.isFinite(Number(total)) ||
@@ -458,14 +483,14 @@ app.post("/api/orders", async (req, res) => {
       });
     }
 
-    // Generate unique order number.
+    // Generate order number.
     const orderNumber =
       "FASH-" +
       Date.now() +
       "-" +
       Math.floor(1000 + Math.random() * 9000);
 
-    // Save order in database.
+    // Save the order in the database.
     const result = await pool.query(
       `INSERT INTO public.orders (
         order_number,
@@ -505,45 +530,44 @@ app.post("/api/orders", async (req, res) => {
       ]
     );
 
+    console.log("ORDER SAVED:", orderNumber);
+
+    // Send admin notification email.
+    // An email failure must not cancel a saved order.
+    await sendOrderNotification({
+      orderNumber,
+      customer_name,
+      phone,
+      address_line,
+      city,
+      state,
+      postal_code,
+      items,
+      subtotal,
+      shipping_fee,
+      total,
+      payment_method,
+    });
+
+    // Send customer confirmation email.
+    console.log("CALLING CUSTOMER CONFIRMATION");
+
+    await sendCustomerConfirmation({
+      email,
+      orderNumber,
+      customer_name,
+      phone,
+      items,
+      subtotal,
+      shipping_fee,
+      total,
+      payment_method,
+    });
+
     console.log(
-      "ORDER SAVED; CALLING EMAIL",
+      "ORDER EMAIL PROCESS COMPLETED:",
       orderNumber
     );
-
-    // Send both emails after saving the order.
-    // Email failure must not cancel a saved order.
-    await Promise.all([
-      sendOrderNotification({
-        orderNumber,
-        customer_name,
-        phone,
-        address_line,
-        city,
-        state,
-        postal_code,
-        items,
-        subtotal,
-        shipping_fee,
-        total,
-        payment_method,
-      }),
-
-      sendCustomerConfirmation({
-        orderNumber,
-        order_status: result.rows[0].order_status,
-        customer_name,
-        phone,
-        email:
-          typeof email === "string"
-            ? email.trim()
-            : "",
-        items,
-        subtotal,
-        shipping_fee,
-        total,
-        payment_method,
-      }),
-    ]);
 
     return res.status(201).json({
       message: "Order placed successfully!",
@@ -560,6 +584,7 @@ app.post("/api/orders", async (req, res) => {
     });
   }
 });
+
 
 // ========================================
 // TRACK A SPECIFIC ORDER
@@ -625,6 +650,7 @@ app.get("/api/track-order", async (req, res) => {
   }
 });
 
+
 // ========================================
 // MY ORDERS - LOOK UP USING MOBILE NUMBER
 // ========================================
@@ -684,6 +710,7 @@ app.get("/api/my-orders", async (req, res) => {
     });
   }
 });
+
 
 // ========================================
 // START SERVER
