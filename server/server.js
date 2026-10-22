@@ -228,6 +228,10 @@ app.patch("/api/orders/:id/status", requireAdmin, async (req, res) => {
 
 
 app.post("/api/orders", async (req, res) => {
+  
+  console.log("NEW ORDER REQUEST RECEIVED");
+
+
   try {
     const {
       customer_name,    
