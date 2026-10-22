@@ -1,5 +1,6 @@
 
 const express = require("express");
+const nodemailer = require("nodemailer");
 const cors = require("cors");
 const { Pool } = require("pg");
 require("dotenv").config();
@@ -19,6 +20,64 @@ app.use(express.json());
 
 
 const jwt = require("jsonwebtoken");
+
+
+async function sendOrderNotification(order) {
+  try {
+    if (
+      !process.env.EMAIL_USER ||
+      !process.env.EMAIL_PASS ||
+      !process.env.ORDER_NOTIFY_EMAIL
+    ) {
+      console.error("Order email notification is not configured.");
+      return;
+    }
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    const itemsText = JSON.stringify(order.items, null, 2);
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: process.env.ORDER_NOTIFY_EMAIL,
+      subject: `New FASHONE Order: ${order.orderNumber}`,
+      text: `
+A new order has been placed on FASHONE.
+
+Order Number: ${order.orderNumber}
+Customer: ${order.customer_name}
+Phone: ${order.phone}
+
+Address:
+${order.address_line}
+${order.city}, ${order.state}
+PIN: ${order.postal_code}
+
+Items:
+${itemsText}
+
+Subtotal: Rs. ${order.subtotal}
+Shipping: Rs. ${order.shipping_fee}
+Total: Rs. ${order.total}
+Payment: ${order.payment_method}
+
+Please check the FASHONE Admin dashboard for order management.
+      `,
+    });
+
+    console.log("Order notification email sent:", order.orderNumber);
+  } catch (error) {
+    // Email failure must not cancel a saved customer order.
+    console.error("Order notification email failed:", error.message);
+  }
+}
+
 
 app.post("/api/admin/login", (req, res) => {
   const { username, password } = req.body;
@@ -244,10 +303,27 @@ app.post("/api/orders", async (req, res) => {
       ]
     );
 
+
+    await sendOrderNotification({
+      orderNumber,
+      customer_name,
+      phone,
+      address_line,
+      city,
+      state,
+      postal_code,
+      items,
+      subtotal,
+      shipping_fee,
+      total,
+      payment_method,
+    });
+
     res.status(201).json({
       message: "Order placed successfully!",
       order: result.rows[0],
     });
+
   } catch (error) {
     console.error("Order creation failed:", error.message);
     res.status(500).json({
