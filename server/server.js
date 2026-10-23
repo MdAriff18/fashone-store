@@ -445,14 +445,70 @@ app.post(
   }
 );
 
-// ========================================
-// GET ALL PRODUCTS
-// ========================================
 
-app.get("/api/products", async (req, res) => {
+/* ========================================
+   UPDATE PRODUCT - ADMIN ONLY
+======================================== */
+
+app.patch("/api/products/:id", requireAdmin, async (req, res) => {
   try {
+    const productId = Number(req.params.id);
+
+    const {
+      name,
+      category,
+      price,
+      oldPrice,
+      color,
+      image,
+      stockQuantity,
+    } = req.body;
+
+    if (
+      !Number.isSafeInteger(productId) ||
+      productId <= 0 ||
+      typeof name !== "string" ||
+      !name.trim() ||
+      typeof category !== "string" ||
+      !category.trim() ||
+      price === "" ||
+      price == null ||
+      !Number.isFinite(Number(price)) ||
+      Number(price) < 0 ||
+      typeof color !== "string" ||
+      !color.trim() ||
+      typeof image !== "string" ||
+      !/^https?:\/\//i.test(image.trim()) ||
+      stockQuantity === "" ||
+      stockQuantity == null ||
+      !Number.isSafeInteger(Number(stockQuantity)) ||
+      Number(stockQuantity) < 0 ||
+      (
+        oldPrice != null &&
+        oldPrice !== "" &&
+        (
+          !Number.isFinite(Number(oldPrice)) ||
+          Number(oldPrice) < 0
+        )
+      )
+    ) {
+      return res.status(400).json({
+        error: "Invalid product details.",
+      });
+    }
+
     const result = await pool.query(
-      `SELECT
+      `UPDATE public.products
+       SET
+         name = $1,
+         category = $2,
+         price = $3,
+         old_price = $4,
+         color = $5,
+         image = $6,
+         stock_quantity = $7
+       WHERE id = $8
+       RETURNING
          id,
          name,
          category,
@@ -460,25 +516,43 @@ app.get("/api/products", async (req, res) => {
          old_price AS "oldPrice",
          color,
          image,
-         stock_quantity AS "stockQuantity"
-       FROM public.products
-       ORDER BY id ASC`
+         stock_quantity AS "stockQuantity"`,
+      [
+        name.trim(),
+        category.trim(),
+        Number(price),
+        oldPrice == null || oldPrice === ""
+          ? null
+          : Number(oldPrice),
+        color.trim(),
+        image.trim(),
+        Number(stockQuantity),
+        productId,
+      ]
     );
 
-    res.json({
-      products: result.rows,
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        error: "Product not found.",
+      });
+    }
+
+    return res.json({
+      message: "Product updated successfully.",
+      product: result.rows[0],
     });
   } catch (error) {
     console.error(
-      "Fetch products failed:",
+      "Update product failed:",
       error.message
     );
 
-    res.status(500).json({
-      error: "Unable to fetch products.",
+    return res.status(500).json({
+      error: "Unable to update product.",
     });
   }
 });
+
 
 // ========================================
 // GET ALL ORDERS - ADMIN ONLY
