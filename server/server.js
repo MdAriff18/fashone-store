@@ -314,6 +314,172 @@ app.get("/api/db-test", async (req, res) => {
 });
 
 
+/* ========================================
+   GET ALL PRODUCTS - PUBLIC
+======================================== */
+
+app.get("/api/products", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT
+         id,
+         name,
+         category,
+         price,
+         old_price AS "oldPrice",
+         color,
+         image,
+         stock_quantity AS "stockQuantity"
+       FROM public.products
+       ORDER BY id ASC`
+    );
+
+    res.json({
+      products: result.rows,
+    });
+  } catch (error) {
+    console.error(
+      "Fetch products failed:",
+      error.message
+    );
+
+    res.status(500).json({
+      error: "Unable to fetch products.",
+    });
+  }
+});
+
+/* ========================================
+   ADD PRODUCT - ADMIN ONLY
+======================================== */
+
+app.post(
+  "/api/products",
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const {
+        id,
+        name,
+        category,
+        price,
+        oldPrice,
+        color,
+        image,
+        stockQuantity,
+      } = req.body;
+
+      if (
+        !Number.isSafeInteger(Number(id)) ||
+        Number(id) <= 0 ||
+        typeof name !== "string" ||
+        !name.trim() ||
+        typeof category !== "string" ||
+        !category.trim() ||
+        !Number.isFinite(Number(price)) ||
+        Number(price) < 0 ||
+        typeof color !== "string" ||
+        !color.trim() ||
+        typeof image !== "string" ||
+        !/^https?:\/\//i.test(image) ||
+        !Number.isSafeInteger(Number(stockQuantity)) ||
+        Number(stockQuantity) < 0 ||
+        (
+          oldPrice != null &&
+          (
+            !Number.isFinite(Number(oldPrice)) ||
+            Number(oldPrice) < 0
+          )
+        )
+      ) {
+        return res.status(400).json({
+          error: "Invalid product details.",
+        });
+      }
+
+      const result = await pool.query(
+        `INSERT INTO public.products (
+           id, name, category, price, old_price,
+           color, image, stock_quantity
+         )
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+         RETURNING
+           id, name, category, price,
+           old_price AS "oldPrice",
+           color, image,
+           stock_quantity AS "stockQuantity"`,
+        [
+          Number(id),
+          name.trim(),
+          category.trim(),
+          Number(price),
+          oldPrice == null || oldPrice === ""
+            ? null
+            : Number(oldPrice),
+          color.trim(),
+          image.trim(),
+          Number(stockQuantity),
+        ]
+      );
+
+      res.status(201).json({
+        message: "Product added successfully.",
+        product: result.rows[0],
+      });
+    } catch (error) {
+      console.error(
+        "Add product failed:",
+        error.message
+      );
+
+      if (error.code === "23505") {
+        return res.status(409).json({
+          error: "A product with this ID already exists.",
+        });
+      }
+
+      res.status(500).json({
+        error: "Unable to add product.",
+      });
+    }
+  }
+);
+
+// ========================================
+// GET ALL PRODUCTS
+// ========================================
+
+app.get("/api/products", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT
+         id,
+         name,
+         category,
+         price,
+         old_price AS "oldPrice",
+         color,
+         image,
+         stock_quantity AS "stockQuantity"
+       FROM public.products
+       ORDER BY id ASC`
+    );
+
+    res.json({
+      products: result.rows,
+    });
+  } catch (error) {
+    console.error(
+      "Fetch products failed:",
+      error.message
+    );
+
+    res.status(500).json({
+      error: "Unable to fetch products.",
+    });
+  }
+});
+
 // ========================================
 // GET ALL ORDERS - ADMIN ONLY
 // ========================================
