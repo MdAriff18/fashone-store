@@ -4,7 +4,7 @@ import "./index.css";
 import MyOrders from "./MyOrders";
 
 
-const products = [
+const fallbackProducts = [
   {
     id: 1,
     name: "Everyday Relaxed Tee",
@@ -244,6 +244,58 @@ function BrandIntro() {
 
 
 function StoreApp() {
+    const [products, setProducts] = useState(fallbackProducts);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadProducts() {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/products`
+        );
+
+        if (!response.ok) {
+          throw new Error("Unable to load products");
+        }
+
+        const data = await response.json();
+
+        if (!Array.isArray(data.products) || data.products.length === 0) {
+          return;
+        }
+
+        if (!cancelled) {
+          const loadedProducts = data.products.map((product) => ({
+            ...product,
+            id: Number(product.id),
+            price: Number(product.price),
+            oldPrice:
+              product.oldPrice == null
+                ? 0
+                : Number(product.oldPrice),
+            badge:
+              fallbackProducts.find(
+                (item) => item.id === Number(product.id)
+              )?.badge || "",
+          }));
+
+          setProducts(loadedProducts);
+        }
+      } catch (error) {
+        console.error(
+          "Products API failed; using fallback products:",
+          error.message
+        );
+      }
+    }
+
+    loadProducts();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   const [showIntro, setShowIntro] = useState(true);
   const [category, setCategory] = useState("All");
   const [search, setSearch] = useState("");
