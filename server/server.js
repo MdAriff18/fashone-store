@@ -662,12 +662,18 @@ app.patch(
 );
 
 
-// ========================================
-// CREATE NEW ORDER + EMAIL NOTIFICATIONS
-// ========================================
+
+/* ========================================
+   CREATE ORDER + AUTOMATIC STOCK MANAGEMENT
+======================================== */
 
 app.post("/api/orders", async (req, res) => {
   console.log("NEW ORDER REQUEST RECEIVED");
+
+  let client;
+  let transactionStarted = false;
+  let savedOrder;
+  let orderEmailData;
 
   try {
     const {
@@ -679,59 +685,153 @@ app.post("/api/orders", async (req, res) => {
       state,
       postal_code,
       items,
-      subtotal,
-      shipping_fee = 0,
-      total,
       payment_method = "COD",
     } = req.body;
 
-    console.log(
-      "Customer email received:",
-      email ? "YES" : "NO"
-    );
-
-    // Validate required fields.
+    // Validate required details.
     if (
-      !customer_name ||
-      !phone ||
-      !address_line ||
-      !city ||
-      !state ||
-      !postal_code ||
+      typeof customer_name !== "string" ||
+      !customer_name.trim() ||
+      typeof phone !== "string" ||
+      !phone.trim() ||
+      typeof address_line !== "string" ||
+      !address_line.trim() ||
+      typeof city !== "string" ||
+      !city.trim() ||
+      typeof state !== "string" ||
+      !state.trim() ||
+      typeof postal_code !== "string" ||
+      !postal_code.trim() ||
       !Array.isArray(items) ||
       items.length === 0 ||
-      subtotal == null ||
-      total == null
+      items.length > 100 ||
+      payment_method !== "COD"
     ) {
       return res.status(400).json({
-        error: "Please provide all required order details.",
+        error: "Please provide valid order details.",
       });
     }
 
-    // Validate amounts and payment method.
-    if (
-      payment_method !== "COD" ||
-      !Number.isFinite(Number(subtotal)) ||
-      !Number.isFinite(Number(shipping_fee)) ||
-      !Number.isFinite(Number(total)) ||
-      Number(subtotal) < 0 ||
-      Number(shipping_fee) < 0 ||
-      Number(total) < 0
-    ) {
+    // Validate each cart item.
+    for (const item of items) {
+      if (
+        !Number.isSafeInteger(Number(item.id)) ||
+        Number(item.id) <= 0 ||
+        !Number.isSafeInteger(Number(item.quantity)) ||
+        Number(item.quantity) <= 0 ||
+        Number(item.quantity) > 100 ||
+        (
+          item.size != null &&
+          !["S", "M", "L", "XL"].includes(item.size)
+        )
+      ) {
+        return res.status(400).json({
+          error: "Invalid product or quantity in your bag.",
+        });
+      }
+    }
+
+    // Combine quantities for each product, including
+    // items of the same product selected in different sizes.
+    const requested = new Map();
+
+    for (const item of items) {
+      const id = Number(item.id);
+
+      requested.set(
+        id,
+        (requested.get(id) || 0) + Number(item.quantity)
+      );
+    }
+
+    if ([...requested.values()].some((qty) => qty > 100)) {
       return res.status(400).json({
-        error: "Invalid order amounts or payment method.",
+        error: "Requested quantity is too large.",
       });
     }
 
-    // Generate order number.
+    client = await pool.connect();
+
+    await client.query("BEGIN");
+    transactionStarted = true;
+
+    const productIds = [...requested.keys()].sort((a, b) => a - b);
+
+    // Lock product rows to prevent concurrent orders
+    // from selling the same remaining stock.
+    const productResult = await client.query(
+      `SELECT id, name, price, stock_quantity
+       FROM public.products
+       WHERE id = ANY($1::int[])
+       ORDER BY id
+       FOR UPDATE`,
+      [productIds]
+    );
+
+    const productMap = new Map(
+      productResult.rows.map((product) => [
+        Number(product.id),
+        product,
+      ])
+    );
+
+    // Reject missing products and insufficient stock.
+    for (const [id, quantity] of requested.entries()) {
+      const product = productMap.get(id);
+
+      if (!product) {
+        await client.query("ROLLBACK");
+        transactionStarted = false;
+
+        return res.status(400).json({
+          error: `Product ID ${id} is no longer available.`,
+        });
+      }
+
+      if (Number(product.stock_quantity) < quantity) {
+        await client.query("ROLLBACK");
+        transactionStarted = false;
+
+        return res.status(409).json({
+          error: `${product.name} has only ${product.stock_quantity} item(s) left. Please update your bag.`,
+        });
+      }
+    }
+
+    // Use database product names and prices, not browser prices.
+    const verifiedItems = items.map((item) => {
+      const product = productMap.get(Number(item.id));
+
+      return {
+        id: Number(product.id),
+        name: product.name,
+        size: item.size || null,
+        quantity: Number(item.quantity),
+        price: Number(product.price),
+      };
+    });
+
+    const subtotal = verifiedItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+
+    if (!Number.isSafeInteger(subtotal) || subtotal < 0) {
+      throw new Error("Invalid calculated order total.");
+    }
+
+    // Existing checkout currently uses free shipping.
+    const shipping_fee = 0;
+    const total = subtotal + shipping_fee;
+
     const orderNumber =
       "FASH-" +
       Date.now() +
       "-" +
       Math.floor(1000 + Math.random() * 9000);
 
-    // Save the order in the database.
-    const result = await pool.query(
+    // Save order inside the same transaction.
+    const result = await client.query(
       `INSERT INTO public.orders (
         order_number,
         customer_name,
@@ -756,13 +856,13 @@ app.post("/api/orders", async (req, res) => {
         created_at`,
       [
         orderNumber,
-        customer_name,
-        phone,
-        address_line,
-        city,
-        state,
-        postal_code,
-        JSON.stringify(items),
+        customer_name.trim(),
+        phone.trim(),
+        address_line.trim(),
+        city.trim(),
+        state.trim(),
+        postal_code.trim(),
+        JSON.stringify(verifiedItems),
         subtotal,
         shipping_fee,
         total,
@@ -770,60 +870,91 @@ app.post("/api/orders", async (req, res) => {
       ]
     );
 
-    console.log("ORDER SAVED:", orderNumber);
+    // Deduct stock only within this transaction.
+    for (const [id, quantity] of requested.entries()) {
+      const updateResult = await client.query(
+        `UPDATE public.products
+         SET stock_quantity = stock_quantity - $1
+         WHERE id = $2
+           AND stock_quantity >= $1
+         RETURNING id`,
+        [quantity, id]
+      );
 
-    // Send admin notification email.
-    // An email failure must not cancel a saved order.
-    await sendOrderNotification({
+      if (updateResult.rowCount !== 1) {
+        throw new Error(
+          `Stock update failed for product ID ${id}.`
+        );
+      }
+    }
+
+    await client.query("COMMIT");
+    transactionStarted = false;
+
+    savedOrder = result.rows[0];
+
+    orderEmailData = {
       orderNumber,
-      customer_name,
-      phone,
-      address_line,
-      city,
-      state,
-      postal_code,
-      items,
-      subtotal,
-      shipping_fee,
-      total,
-      payment_method,
-    });
-
-    // Send customer confirmation email.
-    console.log("CALLING CUSTOMER CONFIRMATION");
-
-    await sendCustomerConfirmation({
       email,
-      orderNumber,
-      customer_name,
-      phone,
-      items,
+      customer_name: customer_name.trim(),
+      phone: phone.trim(),
+      address_line: address_line.trim(),
+      city: city.trim(),
+      state: state.trim(),
+      postal_code: postal_code.trim(),
+      items: verifiedItems,
       subtotal,
       shipping_fee,
       total,
       payment_method,
-    });
+    };
 
     console.log(
-      "ORDER EMAIL PROCESS COMPLETED:",
+      "ORDER SAVED AND STOCK UPDATED:",
       orderNumber
     );
-
-    return res.status(201).json({
-      message: "Order placed successfully!",
-      order: result.rows[0],
-    });
   } catch (error) {
-    console.error(
-      "Order creation failed:",
-      error.message
-    );
+    if (client && transactionStarted) {
+      try {
+        await client.query("ROLLBACK");
+      } catch (rollbackError) {
+        console.error(
+          "Order rollback failed:",
+          rollbackError.message
+        );
+      }
+    }
+
+    console.error("Order creation failed:", error.message);
 
     return res.status(500).json({
       error: "Unable to place order. Please try again.",
     });
+  } finally {
+    if (client) {
+      client.release();
+    }
   }
+
+  // Email failures must not cancel an already committed order.
+  try {
+    await Promise.all([
+      sendOrderNotification(orderEmailData),
+      sendCustomerConfirmation(orderEmailData),
+    ]);
+  } catch (emailError) {
+    console.error(
+      "Order email processing failed:",
+      emailError.message
+    );
+  }
+
+  return res.status(201).json({
+    message: "Order placed successfully!",
+    order: savedOrder,
+  });
 });
+
 
 
 // ========================================
