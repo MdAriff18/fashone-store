@@ -246,13 +246,14 @@ function BrandIntro() {
 function StoreApp() {
     const [products, setProducts] = useState(fallbackProducts);
 
+
   useEffect(() => {
     let cancelled = false;
 
     async function loadProducts() {
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/products`
+          `${import.meta.env.VITE_API_URL || "https://fashone-backend.onrender.com"}/api/products`
         );
 
         if (!response.ok) {
@@ -261,12 +262,15 @@ function StoreApp() {
 
         const data = await response.json();
 
-        if (!Array.isArray(data.products) || data.products.length === 0) {
-          return;
+        if (!Array.isArray(data.products)) {
+          throw new Error("Invalid products response");
         }
 
-        if (!cancelled) {
-          const loadedProducts = data.products.map((product) => ({
+        const loadedProducts = data.products.map((product) => {
+          const rawStock =
+            product.stockQuantity ?? product.stock_quantity;
+
+          return {
             ...product,
             id: Number(product.id),
             price: Number(product.price),
@@ -274,28 +278,46 @@ function StoreApp() {
               product.oldPrice == null
                 ? 0
                 : Number(product.oldPrice),
+            stockQuantity:
+              rawStock == null ? 0 : Number(rawStock),
             badge:
               fallbackProducts.find(
                 (item) => item.id === Number(product.id)
               )?.badge || "",
-          }));
+          };
+        });
 
+        if (!cancelled) {
           setProducts(loadedProducts);
+
+          setSelectedProduct((current) => {
+            if (!current) return current;
+
+            return (
+              loadedProducts.find(
+                (product) => product.id === Number(current.id)
+              ) || current
+            );
+          });
         }
       } catch (error) {
-        console.error(
-          "Products API failed; using fallback products:",
-          error.message
-        );
+        console.error("Products API failed:", error.message);
       }
     }
 
     loadProducts();
 
+    // Refresh stock when the visitor returns to the store.
+    const refreshOnFocus = () => loadProducts();
+
+    window.addEventListener("focus", refreshOnFocus);
+
     return () => {
       cancelled = true;
+      window.removeEventListener("focus", refreshOnFocus);
     };
   }, []);
+
   const [showIntro, setShowIntro] = useState(true);
   const [category, setCategory] = useState("All");
   const [search, setSearch] = useState("");
@@ -342,7 +364,7 @@ function StoreApp() {
 
       return matchesCategory && matchesSearch;
     });
-  }, [category, search]);
+  }, [products, category, search]);
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -385,6 +407,7 @@ function StoreApp() {
     });
 
     const data = await response.json();
+    console.log("FASHONE API PRODUCTS:", data.products);
 
     if (!response.ok) {
       throw new Error(data.error || "Unable to place order.");
@@ -414,15 +437,43 @@ function StoreApp() {
   }
 };
 
+
   function addToCart(product) {
+    const stock = Number(product.stockQuantity ?? 0);
+
+    if (stock <= 0) {
+      setNotice("Sorry, this product is out of stock.");
+      setCartOpen(true);
+      return;
+    }
+
+    const existing = cart.find(
+      (item) =>
+        item.id === product.id &&
+        item.size === product.size
+    );
+
+    if (existing && existing.quantity >= stock) {
+      setNotice(`Only ${stock} item(s) available in stock.`);
+      setCartOpen(true);
+      return;
+    }
+
     setCart((current) => {
-      const existing = current.find(
-        (item) => item.id === product.id && item.size === product.size
+      const currentItem = current.find(
+        (item) =>
+          item.id === product.id &&
+          item.size === product.size
       );
 
-      if (existing) {
+      if (currentItem) {
+        if (currentItem.quantity >= stock) {
+          return current;
+        }
+
         return current.map((item) =>
-          item.id === product.id && item.size === product.size
+          item.id === product.id &&
+          item.size === product.size
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
@@ -435,17 +486,40 @@ function StoreApp() {
     setCartOpen(true);
   }
 
-  function changeQuantity(id, amount) {
+
+
+  function changeQuantity(id, size, amount) {
+    const cartItem = cart.find(
+      (item) => item.id === id && item.size === size
+    );
+
+    if (!cartItem) return;
+
+    const product = products.find(
+      (item) => item.id === id
+    );
+
+    const stock = Number(product?.stockQuantity ?? 0);
+    const nextQuantity = cartItem.quantity + amount;
+
+    if (nextQuantity > stock) {
+      setNotice(`Only ${stock} item(s) available in stock.`);
+      return;
+    }
+
     setCart((current) =>
       current
         .map((item) =>
-          item.id === id
+          item.id === id && item.size === size
             ? { ...item, quantity: item.quantity + amount }
             : item
         )
         .filter((item) => item.quantity > 0)
     );
+
+    setNotice("");
   }
+
 
   return (
     <>
@@ -605,11 +679,16 @@ function StoreApp() {
                       <span className="product-badge">{product.badge}</span>
                     )}
 
+
                     <button
                       className="quick-add"
+                      disabled={Number(product.stockQuantity ?? 0) <= 0}
                       onClick={() => addToCart({ ...product, size: "M" })}
                     >
-                      ADD TO BAG <span>+</span>
+                      {Number(product.stockQuantity ?? 0) <= 0
+                        ? "SOLD OUT"
+                        : "ADD TO BAG"}
+                      {Number(product.stockQuantity ?? 0) > 0 && <span>+</span>}
                     </button>
                   </div>
 
@@ -924,16 +1003,26 @@ function StoreApp() {
 
                 <button
                   className="modal-add-button"
+                  disabled={Number(selectedProduct.stockQuantity ?? 0) <= 0}
                   onClick={() => {
+                    if (Number(selectedProduct.stockQuantity ?? 0) <= 0) {
+                      setNotice("Sorry, this product is out of stock.");
+                      return;
+                    }
+
                     addToCart({
                       ...selectedProduct,
                       size: selectedSize,
                     });
+
                     setSelectedProduct(null);
                   }}
                 >
-                  ADD TO BAG — {money(selectedProduct.price)}
+                  {Number(selectedProduct.stockQuantity ?? 0) <= 0
+                    ? "SOLD OUT"
+                    : `ADD TO BAG — ${money(selectedProduct.price)}`}
                 </button>
+
 
                 <p className="modal-small-note">
                   Easy everyday style. Made to be yours.
@@ -1000,7 +1089,7 @@ function StoreApp() {
 
                           <div className="quantity-control">
                             <button
-                              onClick={() => changeQuantity(item.id, -1)}
+                              onClick={() => changeQuantity(item.id, item.size, -1)}
                               aria-label={`Decrease quantity of ${item.name}`}
                             >
                               −
@@ -1009,7 +1098,7 @@ function StoreApp() {
                             <span>{item.quantity}</span>
 
                             <button
-                              onClick={() => changeQuantity(item.id, 1)}
+                              onClick={() => changeQuantity(item.id, item.size, 1)}
                               aria-label={`Increase quantity of ${item.name}`}
                             >
                               +
