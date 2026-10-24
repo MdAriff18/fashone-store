@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=Cormorant+Garamond:wght@400;500;600;700&family=Bebas+Neue&family=Montserrat:wght@400;500;600;700;800&display=swap');
 /* =========================
    GLOBAL SETTINGS
 ========================= */
@@ -106,7 +105,8 @@ input:focus-visible {
   align-items: center;
   justify-content: flex-start;
   gap: 28px;
-  background: transparent;
+  background: transparent !important;
+  box-shadow: none !important;
   color: var(--ink);
 }
 
@@ -135,6 +135,15 @@ input:focus-visible {
   font-weight: 400;
 }
 
+.wordmark-image {
+  display: block;
+  width: 350px;
+  height: auto;
+  max-width: none;
+  object-fit: contain;
+  transform: none;
+  pointer-events: none;
+}
 
 
 /* Navigation and actions stay on the right */
@@ -197,6 +206,10 @@ input:focus-visible {
   border-color: #111;
 }
 
+.nav-links {
+  transform: translateY(-8px);
+}
+
 /* =========================
    HERO SECTION
 ========================= */
@@ -231,7 +244,7 @@ input:focus-visible {
 
 /* No dark overlay on the hero image */
 .hero-shade {
-  display: none;
+  display: none !important;
   z-index: -1;
 }
 
@@ -243,7 +256,7 @@ input:focus-visible {
   margin-left: auto;
   margin-right: 7%;
   padding: 50px 5%;
-  transform: translate(30px, 90px);
+  transform: translate(0px, 40px);
   text-align: right;
 }
 
@@ -2241,3 +2254,604 @@ footer a {
 footer a:hover {
   opacity: 0.6;
 }
+
+/* FASHONE — Header position fix */
+.header {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 100 !important;
+
+  min-height: 90px;
+  height: 90px;
+  padding: 0 7%;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  background: transparent !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* Keep logo aligned */
+.wordmark,
+.wordmark-image {
+  flex-shrink: 0;
+  transform: none !important;
+}
+
+/* Keep hero text in its current position */
+.hero-copy {
+  transform: translate(0, 40px);
+}
+
+/* Fine-tune header spacing */
+.header {
+  padding-top: 12px !important;
+  min-height: 100px;
+  align-items: center;
+}
+
+/* Keep hero text unchanged */
+.hero-copy {
+  transform: translate(0, 40px);
+}
+
+.wordmark,
+.wordmark-image {
+  position: relative;
+  left: -55px;
+  top: 2px;
+}
+
+
+/* Reduce only footer button box size */
+.footer-cta-button {
+  min-height: 95px;
+  padding: 16px 20px;
+}
+
+@media (max-width: 600px) {
+  .footer-cta-button {
+    min-height: 85px;
+    padding: 14px 16px;
+  }
+}
+.footer-cta-button {
+  align-self: center;
+  width: fit-content;
+  min-width: 0;
+}
+
+
+/* Footer CTA layout repair */
+.footer-cta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  width: 100%;
+  max-width: 600px;
+  margin: 24px auto;
+  align-items: stretch;
+}
+
+.footer-cta-button {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 82px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.footer-cta-link {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  width: fit-content;
+  max-width: 100%;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.footer-cta-label,
+.footer-cta-title {
+  display: block;
+  max-width: 100%;
+  line-height: 1.5;
+  white-space: normal;
+}
+
+.footer-cta-button {
+  cursor: default;
+}
+
+@media (max-width: 600px) {
+  .footer-cta {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .footer-cta-button {
+    min-height: 72px;
+  }
+}
+
+
+/* Restore original single-row footer */
+.footer-cta {
+  display: none !important;
+}
+
+.footer-links {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin: 28px auto;
+}
+
+.footer-links a {
+  color: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .footer-links {
+    gap: 12px;
+    padding: 0 12px;
+  }
+
+  .footer-links a {
+    font-size: 10px;
+  }
+}
+
+/* Center FASHONE logo exactly */
+.footer-logo {
+  display: block;
+  width: fit-content;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  text-align: center;
+  position: relative;
+  left: 0 !important;
+  transform: translateX(5px) !important;
+}
+
+
+/* Premium highlight for ABOUT US and TRACK ORDER */
+.footer-links a[href="/about"],
+.footer-links a[href="/track-order"] {
+  display: inline-block;
+  position: relative;
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  transition: all 0.25s ease;
+}
+
+/* Elegant underline animation */
+.footer-links a[href="/about"]::after,
+.footer-links a[href="/track-order"]::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  bottom: 4px;
+  width: 0;
+  height: 1px;
+  background: currentColor;
+  transition: width 0.25s ease;
+}
+
+.footer-links a[href="/about"]:hover,
+.footer-links a[href="/track-order"]:hover {
+  background: #fff;
+  color: #111;
+  border-color: #fff;
+  transform: translateY(-2px);
+}
+
+.footer-links a[href="/about"]:hover::after,
+.footer-links a[href="/track-order"]:hover::after {
+  width: calc(100% - 24px);
+}
+
+@media (max-width: 600px) {
+  .footer-links a[href="/about"],
+  .footer-links a[href="/track-order"] {
+    padding: 7px 9px;
+    font-size: 10px;
+    letter-spacing: 0.8px;
+  }
+}
+
+
+/* FASHONE policy pages — targeted styling */
+.policy-site {
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: clip;
+  background: #fff;
+  color: #111;
+}
+
+.policy-site .policy-header {
+  position: relative;
+  width: 100%;
+  min-height: 100px;
+  padding: 22px 7%;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 32px;
+  background: #fff;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.policy-site .policy-header .wordmark {
+  position: relative;
+  left: 0 !important;
+  top: 0 !important;
+  transform: none !important;
+  flex-shrink: 0;
+  display: inline-block;
+  color: #111;
+  text-decoration: none;
+  white-space: nowrap;
+  font-size: 36px;
+  letter-spacing: 3px;
+}
+
+.policy-site .policy-nav {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 26px;
+}
+
+.policy-site .policy-nav a {
+  color: #111;
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  white-space: nowrap;
+  transition: opacity 0.2s ease;
+}
+
+.policy-site .policy-nav a:hover {
+  opacity: 0.55;
+}
+
+.policy-site .policy-main {
+  width: min(100% - 48px, 1000px);
+  margin: 0 auto;
+  padding: 76px 0 90px;
+  box-sizing: border-box;
+}
+
+.policy-site .policy-main .eyebrow {
+  margin: 0 0 24px;
+  font-size: 10px;
+  letter-spacing: 3px;
+  line-height: 1.8;
+  color: #666;
+}
+
+.policy-site .policy-main h1 {
+  margin: 0 0 22px;
+  font-size: clamp(32px, 5vw, 54px);
+  line-height: 1.12;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+.policy-site .policy-intro {
+  max-width: 650px;
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.8;
+  color: #444;
+}
+
+.policy-site .policy-rule {
+  width: 100%;
+  height: 1px;
+  margin: 38px 0;
+  background: #dedede;
+}
+
+.policy-site .policy-section {
+  display: grid;
+  grid-template-columns: 65px minmax(0, 1fr);
+  gap: 20px;
+  padding: 26px 0;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.policy-site .policy-number {
+  padding-top: 5px;
+  color: #888;
+  font-size: 12px;
+  letter-spacing: 2px;
+}
+
+.policy-site .policy-section h2 {
+  margin: 0 0 12px;
+  font-size: 21px;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+.policy-site .policy-section p {
+  max-width: 760px;
+  margin: 0;
+  color: #555;
+  font-size: 15px;
+  line-height: 1.9;
+}
+
+.policy-site .policy-back-link {
+  display: inline-block;
+  margin-top: 38px;
+  color: #111;
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.3px;
+  border-bottom: 1px solid #111;
+  padding-bottom: 7px;
+}
+
+.policy-site .policy-footer {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.policy-site .policy-footer .footer-logo {
+  left: 0 !important;
+  top: 0 !important;
+  transform: none !important;
+}
+
+/* Responsive policy pages */
+@media (max-width: 700px) {
+  .policy-site .policy-header {
+    padding: 20px 6%;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .policy-site .policy-header .wordmark {
+    font-size: 30px;
+  }
+
+  .policy-site .policy-nav {
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .policy-site .policy-nav a {
+    font-size: 10px;
+    letter-spacing: 0.7px;
+  }
+
+  .policy-site .policy-main {
+    width: calc(100% - 36px);
+    padding: 48px 0 60px;
+  }
+
+  .policy-site .policy-main h1 {
+    font-size: 34px;
+  }
+
+  .policy-site .policy-intro {
+    font-size: 15px;
+  }
+
+  .policy-site .policy-rule {
+    margin: 28px 0;
+  }
+
+  .policy-site .policy-section {
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 12px;
+    padding: 22px 0;
+  }
+
+  .policy-site .policy-section h2 {
+    font-size: 18px;
+  }
+
+  .policy-site .policy-section p {
+    font-size: 14px;
+    line-height: 1.8;
+  }
+}
+
+/* Fix unwanted overlay on policy pages */
+.policy-site,
+.policy-site .policy-header,
+.policy-site .policy-main,
+.policy-site .policy-footer {
+  opacity: 1;
+  filter: none;
+}
+
+.policy-site::before,
+.policy-site::after,
+.policy-site .policy-header::before,
+.policy-site .policy-main::before {
+  pointer-events: none;
+}
+
+/* Slightly shift policy content to the left */
+.policy-site .policy-main {
+  width: min(100% - 48px, 1000px);
+  margin-left: 10%;
+  margin-right: auto;
+}
+
+@media (max-width: 700px) {
+  .policy-site .policy-main {
+    width: calc(100% - 36px);
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* ========================================
+   FASHONE — POLICY PAGES TYPOGRAPHY
+   Match the homepage Our Story style
+======================================== */
+
+/* Main headings: ABOUT FASHONE, SHIPPING POLICY, etc. */
+.policy-site .policy-main h1 {
+  font-family: var(--display);
+  font-size: clamp(52px, 7vw, 82px);
+  font-weight: 400;
+  line-height: 0.95;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #111;
+  margin-bottom: 24px;
+}
+
+/* Section headings: Our Story, Our Philosophy, etc. */
+.policy-site .policy-section h2 {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0;
+  color: #111;
+  margin: 0 0 12px;
+}
+
+/* Intro text */
+.policy-site .policy-intro {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.9;
+  color: #444;
+}
+
+/* Paragraph text */
+.policy-site .policy-section p {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.9;
+  color: #555;
+}
+
+/* Section numbers */
+.policy-site .policy-number {
+  font-family: var(--serif);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  color: #777;
+}
+
+/* Small eyebrow text */
+.policy-site .policy-main .eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  color: #666;
+}
+
+/* Mobile typography */
+@media (max-width: 700px) {
+  .policy-site .policy-main h1 {
+    font-size: clamp(42px, 12vw, 60px);
+    line-height: 0.98;
+    letter-spacing: 1px;
+  }
+
+  .policy-site .policy-section h2 {
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .policy-site .policy-intro {
+    font-size: 15px;
+  }
+
+  .policy-site .policy-section p {
+    font-size: 14px;
+    line-height: 1.8;
+  }
+}
+
+/* FASHONE — Two-tone premium policy headings */
+.policy-site .policy-main h1 {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(52px, 7vw, 82px);
+  line-height: 0.95;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #111;
+}
+
+/* Light grey second line, matching Our Story */
+.policy-site .policy-main h1 span {
+  display: block;
+  color: #888;
+}
+
+/* Mobile */
+@media (max-width: 700px) {
+  .policy-site .policy-main h1 {
+    font-size: clamp(42px, 12vw, 60px);
+    line-height: 0.98;
+  }
+}
+
+/* Policy headings — same two-colour style as Our Story */
+.policy-site .policy-main h1 {
+  color: #111 !important;
+}
+
+.policy-site .policy-main h1 span {
+  color: #888 !important;
+}
+
+/* Keep policy page headings on one line */
+.policy-site .policy-main h1 {
+  white-space: nowrap;
+}
+
+.policy-site .policy-main h1 span {
+  display: inline;
+}
+
+@media (max-width: 700px) {
+  .policy-site .policy-main h1 {
+    font-size: clamp(26px, 7vw, 46px);
+    letter-spacing: 0;
+    white-space: nowrap;
+  }
+}
+

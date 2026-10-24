@@ -106,7 +106,19 @@ export default function PolicyPage({ path }) {
 
       <main className="policy-main">
         <p className="eyebrow">{page.label} / FASHONE</p>
-        <h1>{page.title}</h1>
+        <h1>
+          {path === "/about" ? (
+            <>ABOUT <span>FASHONE</span></>
+          ) : path === "/shipping-policy" ? (
+            <>SHIPPING <span>POLICY</span></>
+          ) : path === "/return-policy" ? (
+            <>RETURNS <span>&amp; REFUNDS</span></>
+          ) : path === "/contact" ? (
+            <>CONTACT <span>US</span></>
+          ) : (
+            page.title
+          )}
+        </h1>
         <p className="policy-intro">{page.intro}</p>
 
         <div className="policy-rule" />

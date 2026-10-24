@@ -527,17 +527,19 @@ function StoreApp() {
 
       <div className="site-shell">
         <header className="header">
-          <a className="wordmark" href="#home" aria-label="FASHONE home">
-            FASHONE<span>.</span>
-          </a>
+        <a className="wordmark" href="#home" aria-label="FASHONE home">
+          <img
+            src="/images/fashone-logo-transparent.png"
+            alt="FASHONE"
+            className="wordmark-image"
+          />
+        </a>
 
           <nav className="main-nav" aria-label="Main navigation">
             <a href="#home">HOME</a>
             <a href="#collection">SHOP MEN</a>
             <a href="#story">OUR STORY</a>
-            <a href="#about">ABOUT</a>
             <a href="/orders">ORDERS</a>
-            <a href="/track-order">TRACK ORDER</a>
           </nav>
 
           <div className="header-actions">
@@ -909,25 +911,27 @@ function StoreApp() {
         </main>
 
 
-        <footer className="footer">
-          <a className="wordmark footer-logo" href="/#home">
-            FASHONE<span>.</span>
-          </a>
 
-          <p>MODERN ESSENTIALS. EVERYDAY CONFIDENCE.</p>
+      <footer className="footer">
+        <a className="wordmark footer-logo" href="/#home">
+          FASHONE<span>.</span>
+        </a>
 
-          <nav className="footer-links" aria-label="Footer navigation">
-            <a href="/about">ABOUT US</a>
-            <a href="/contact">CONTACT</a>
-            <a href="/shipping-policy">SHIPPING POLICY</a>
-            <a href="/return-policy">RETURNS & REFUNDS</a>
-            <a href="/track-order">TRACK ORDER</a>
-          </nav>
+        <p>MODERN ESSENTIALS. EVERYDAY CONFIDENCE.</p>
 
-          <p className="footer-small">
-            © {new Date().getFullYear()} FASHONE. ALL RIGHTS RESERVED.
-          </p>
-        </footer>
+        <nav className="footer-links" aria-label="Footer navigation">
+          <a href="/about">ABOUT US</a>
+          <a href="/contact">CONTACT</a>
+          <a href="/shipping-policy">SHIPPING POLICY</a>
+          <a href="/return-policy">RETURNS &amp; REFUNDS</a>
+          <a href="/track-order">TRACK ORDER</a>
+        </nav>
+
+        <p className="footer-small">
+          © {new Date().getFullYear()} FASHONE. ALL RIGHTS RESERVED.
+        </p>
+      </footer>
+
 
 
         {selectedProduct && (
