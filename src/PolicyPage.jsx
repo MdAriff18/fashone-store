@@ -94,7 +94,15 @@ export default function PolicyPage({ path }) {
   return (
     <div className="site-shell policy-site">
       <header className="policy-header">
-        <a className="wordmark" href="/">FASHONE<span>.</span></a>
+        
+      <a className="wordmark policy-header-logo" href="/#home" aria-label="FASHONE Home">
+        <img
+          src="/images/fashone-logo-transparent.png"
+          alt="FASHONE"
+          className="wordmark-image"
+        />
+      </a>
+
 
         <nav className="policy-nav" aria-label="Main navigation">
           <a href="/">HOME</a>

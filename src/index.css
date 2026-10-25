@@ -2542,7 +2542,7 @@ footer a:hover {
 .policy-site .policy-main {
   width: min(100% - 48px, 1000px);
   margin: 0 auto;
-  padding: 76px 0 90px;
+  padding: 20px 0 90px;
   box-sizing: border-box;
 }
 
@@ -2655,7 +2655,7 @@ footer a:hover {
 
   .policy-site .policy-main {
     width: calc(100% - 36px);
-    padding: 48px 0 60px;
+    padding: 16px 0 60px;
   }
 
   .policy-site .policy-main h1 {
@@ -2855,3 +2855,290 @@ footer a:hover {
   }
 }
 
+
+/* POLICY HEADER — FASHONE LOGO IMAGE FIX */
+.policy-site .policy-header .wordmark {
+  display: block;
+  flex-shrink: 0;
+  width: fit-content;
+  font-size: 0;
+  letter-spacing: 0;
+  line-height: 0;
+}
+
+.policy-site .policy-header .wordmark-image {
+  display: block;
+  width: 240px;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  transform: none !important;
+  pointer-events: none;
+}
+
+/* Keep policy header compact on mobile */
+@media (max-width: 700px) {
+  .policy-site .policy-header .wordmark-image {
+    width: 180px;
+  }
+}
+
+/* FINAL FIX — POLICY PAGE HEADER */
+.policy-site .policy-header {
+  min-height: 76px;
+  height: auto;
+  padding: 14px 6%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.policy-site .policy-header .wordmark {
+  display: block;
+  flex: 0 1 auto;
+  width: auto;
+  margin: 0;
+  padding: 0;
+  font-size: 0;
+  line-height: 0;
+  letter-spacing: 0;
+  position: static;
+  transform: none;
+}
+
+.policy-site .policy-header .wordmark-image {
+  display: block;
+  width: 240px;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Keep navigation aligned */
+.policy-site .policy-nav {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 26px;
+  flex-wrap: wrap;
+}
+
+/* Mobile header */
+@media (max-width: 700px) {
+  .policy-site .policy-header {
+    min-height: auto;
+    padding: 18px 5%;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .policy-site .policy-header .wordmark-image {
+    width: 190px;
+  }
+
+  .policy-site .policy-nav {
+    justify-content: center;
+    gap: 12px 18px;
+  }
+}
+
+
+/* FASHONE POLICY HEADER — FINAL LOGO POSITION FIX */
+.policy-site .policy-header .policy-header-logo {
+  position: relative !important;
+  top: -95px !important;
+  left: 0 !important;
+  margin: 0 auto 0 0 !important;
+  transform: none !important;
+  flex-shrink: 0;
+  z-index: 2;
+}
+
+.policy-site .policy-header .policy-header-logo .wordmark-image {
+  display: block;
+  width: 300px !important;
+  max-width: 100%;
+  height: auto;
+}
+
+@media (max-width: 700px) {
+  .policy-site .policy-header .policy-header-logo {
+    top: -15px !important;
+  }
+
+  .policy-site .policy-header .policy-header-logo .wordmark-image {
+    width: 190px !important;
+  }
+}
+
+/* ALIGN POLICY NAVBAR WITH LOGO */
+.policy-site .policy-header .policy-nav {
+  position: relative !important;
+  top: -50px !important;
+}
+
+@media (max-width: 700px) {
+  .policy-site .policy-header .policy-nav {
+    top: -25px !important;
+  }
+}
+
+/* POLICY HEADER — SAFE GAP FIX */
+.policy-site .policy-header {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.policy-site .policy-content {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* FIX: POLICY HEADER AND CONTENT OVERLAP */
+.policy-site .policy-header {
+  position: relative;
+  z-index: 2;
+  overflow: visible;
+}
+
+.policy-site .policy-main {
+  position: relative;
+  z-index: 1;
+  padding-top: 20px !important;
+  margin-top: 0 !important;
+  overflow: visible;
+}
+
+@media (max-width: 700px) {
+  .policy-site .policy-main {
+    padding-top: 16px !important;
+  }
+}
+
+
+
+/* FIX ABOUT FASHONE HEADING POSITION */
+.policy-site .policy-main {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+  transform: none !important;
+  overflow: visible !important;
+}
+
+.policy-site .policy-main .eyebrow {
+  margin-bottom: 10px !important;
+}
+
+.policy-site .policy-main h1 {
+  position: static !important;
+  top: auto !important;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  line-height: 1.15 !important;
+  overflow: visible !important;
+}
+
+@media (max-width: 700px) {
+  .policy-site .policy-main {
+    margin-top: -10px !important;
+  }
+
+  .policy-site .policy-main h1 {
+    top: -8px !important;
+  }
+}
+
+
+/* FINAL FIX — ABOUT FASHONE HEADING */
+.policy-site .policy-main {
+  margin-top: 0 !important;
+  padding-top: 8px !important;
+  transform: none !important;
+  overflow: visible !important;
+}
+
+.policy-site .policy-main .eyebrow {
+  margin-top: 0 !important;
+  margin-bottom: 8px !important;
+}
+
+.policy-site .policy-main h1 {
+  position: static !important;
+  top: auto !important;
+  margin-top: 0 !important;
+  padding-top: 4px !important;
+  line-height: 1.2 !important;
+  overflow: visible !important;
+}
+
+
+/* REDUCE EXCESSIVE GAP ABOVE ABOUT FASHONE */
+.policy-site .policy-header {
+  height: 140px !important;
+  min-height: 140px !important;
+  padding-top: 14px !important;
+  padding-bottom: 14px !important;
+  box-sizing: border-box !important;
+}
+
+.policy-site .policy-main {
+  margin-top: 0 !important;
+  padding-top: 8px !important;
+  transform: none !important;
+}
+
+.policy-site .policy-main h1 {
+  position: static !important;
+  top: auto !important;
+  padding-top: 0 !important;
+  line-height: 1.15 !important;
+}
+
+@media (max-width: 700px) {
+  .policy-site .policy-header {
+    height: 140px !important;
+    min-height: 140px !important;
+  }
+
+  .policy-site .policy-main {
+    padding-top: 12px !important;
+  }
+}
+
+
+/* RESTORE POLICY LOGO AND NAV POSITION */
+.policy-site .policy-header .policy-header-logo {
+  top: 0 !important;
+}
+
+.policy-site .policy-header .policy-nav {
+  top: 0 !important;
+}
+
+@media (max-width: 700px) {
+  .policy-site .policy-header .policy-header-logo {
+    top: 0 !important;
+  }
+
+  .policy-site .policy-header .policy-nav {
+    top: 0 !important;
+  }
+}
+
+
+/* Slightly enlarge FASHONE logo only */
+.policy-site .policy-header .policy-header-logo .wordmark-image {
+  width: 400px !important;
+}
+
+@media (max-width: 700px) {
+  .policy-site .policy-header .policy-header-logo .wordmark-image {
+    width: 280px !important;
+  }
+}
+
+/* Move FASHONE logo slightly left */
+.policy-site .policy-header .policy-header-logo {
+  left: -25px !important;
+}
