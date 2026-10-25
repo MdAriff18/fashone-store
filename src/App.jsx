@@ -184,11 +184,7 @@ function readSavedCart() {
   }
 }
 
-
-
 function BrandIntro() {
-  const letters = ["F", "A", "S", "H", "O", "N", "E"];
-
   return (
     <div className="fashone-intro" role="status" aria-label="FASHONE">
       <div className="intro-image" />
@@ -208,30 +204,35 @@ function BrandIntro() {
             width="1000"
             height="500"
           >
-            <rect width="1000" height="500" fill="white" />
-
-            {letters.map((letter, index) => (
-              <text
-                key={letter}
-                x={index * 66 + 302}
-                y="275"
-                textAnchor="middle"
-                fill="black"
-                fontFamily="Cinzel, Georgia, serif"
-                fontSize="94"
-                fontWeight="600"
-                className="intro-letter"
-                style={{ animationDelay: `${index * 0.24}s` }}
-              >
-                {letter}
-              </text>
-            ))}
+            <rect
+              x="0"
+              y="0"
+              width="1000"
+              height="500"
+              fill="white"
+            />
+            <text
+              className="intro-signature"
+              x="500"
+              y="315"
+              textAnchor="middle"
+              fontFamily="Italianno, cursive"
+              fontSize="300"
+              fontWeight="400"
+              fill="none"
+              stroke="black"
+              strokeWidth="1.2"
+            >
+              Fashone
+            </text>
           </mask>
         </defs>
 
         <rect
+          x="0"
+          y="0"
           width="1000"
-          height="1000"
+          height="500"
           fill="#777"
           fillOpacity="0.85"
           mask="url(#fashone-cutout)"
