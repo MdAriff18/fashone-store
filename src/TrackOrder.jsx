@@ -57,7 +57,10 @@ export default function TrackOrder() {
 
       <section style={styles.card}>
         <p style={styles.eyebrow}>FASHONE / ORDER SERVICES</p>
-        <h1 style={styles.heading}>Track your order.</h1>
+        <h1 style={styles.heading}>
+          <span style={{ color: "#111" }}>TRACK YOUR </span>
+          <span style={{ color: "#888" }}>ORDER.</span>
+        </h1>
         <p style={styles.muted}>
           Enter your order number and phone number to see your latest order status.
         </p>
@@ -125,7 +128,7 @@ const styles = {
     color: "#171717",
     padding: "32px 18px",
     boxSizing: "border-box",
-    fontFamily: "Arial, sans-serif",
+    fontFamily: "'DM Sans', sans-serif",
   },
   back: {
     display: "inline-block",
@@ -150,8 +153,12 @@ const styles = {
     letterSpacing: 2.5,
   },
   heading: {
-    fontSize: "clamp(30px, 6vw, 44px)",
-    letterSpacing: -1.5,
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontWeight: 400,
+    textTransform: "uppercase",
+    fontSize: "clamp(52px, 7vw, 82px)",
+    letterSpacing: "1.5px",
+    lineHeight: 0.95,
     margin: "18px 0 10px",
   },
   muted: { color: "#666", fontSize: 14, lineHeight: 1.6 },
@@ -161,6 +168,12 @@ const styles = {
     fontSize: 12,
     fontWeight: 700,
   },
+  muted: {
+  fontFamily: "'DM Sans', sans-serif",
+  color: "#666",
+  fontSize: 14,
+  lineHeight: 1.6,
+},
   input: {
     width: "100%",
     boxSizing: "border-box",

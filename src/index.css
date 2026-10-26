@@ -6214,3 +6214,1000 @@ body:has(.product-modal-backdrop) {
 .product-modal-image-wrap img + img {
   margin-top: 12px;
 }
+
+/* ==========================================
+   FASHONE PRODUCT MODAL — INDEPENDENT SCROLL
+   Desktop: 40% images | 20% options | 40% details
+========================================== */
+
+@media (min-width: 701px) {
+  .product-modal-backdrop {
+    position: fixed !important;
+    inset: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    display: flex !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+  }
+
+  .product-modal {
+    display: grid !important;
+    grid-template-columns: 40% 20% 40% !important;
+    grid-template-rows: minmax(0, 1fr) !important;
+
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    max-height: 100vh !important;
+    max-height: 100dvh !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+    gap: 0 !important;
+
+    overflow: hidden !important;
+    min-height: 0 !important;
+  }
+
+  /* LEFT 40% — IMAGE GALLERY SCROLLS INDEPENDENTLY */
+  .product-modal-image-wrap {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .product-modal-image-wrap img {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    object-fit: contain !important;
+    object-position: center !important;
+  }
+
+  /* MIDDLE 20% — OPTIONS REMAIN IN THEIR OWN COLUMN */
+  .product-modal-options {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* RIGHT 40% — DETAILS AND RELATED PRODUCTS SCROLL TOGETHER */
+  .product-modal-info {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    align-items: stretch !important;
+
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    box-sizing: border-box !important;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Keep the close button above all three columns */
+  .product-modal-close {
+    position: fixed !important;
+    top: 14px !important;
+    right: 14px !important;
+    z-index: 10002 !important;
+  }
+
+  /* Prevent page scrolling behind the modal */
+  body:has(.product-modal-backdrop) {
+    overflow: hidden !important;
+    overscroll-behavior: none !important;
+  }
+}
+
+/* MOBILE — PRESERVE THE EXISTING VERTICAL MODAL LAYOUT */
+@media (max-width: 700px) {
+  .product-modal-backdrop {
+    overflow: hidden !important;
+  }
+
+  .product-modal {
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: 34dvh auto auto !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+
+  .product-modal-image-wrap {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    width: 100% !important;
+    height: 34dvh !important;
+    min-height: 220px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+
+  .product-modal-image-wrap img {
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    object-fit: contain !important;
+  }
+
+  .product-modal-options {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .product-modal-info {
+    grid-column: 1 !important;
+    grid-row: 3 !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+}
+
+/* FASHONE — FIX INDEPENDENT PRODUCT MODAL SCROLL */
+
+@media (min-width: 701px) {
+  .product-modal-backdrop {
+    position: fixed !important;
+    inset: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+  }
+
+  .product-modal {
+    display: grid !important;
+    grid-template-columns: 40% 20% 40% !important;
+    grid-template-rows: minmax(0, 1fr) !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    max-width: 100vw !important;
+    max-height: 100vh !important;
+    max-height: 100dvh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    min-height: 0 !important;
+  }
+
+  .product-modal-image-wrap,
+  .product-modal-options,
+  .product-modal-info {
+    height: 100% !important;
+    min-height: 0 !important;
+    min-width: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    overscroll-behavior-y: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .product-modal-image-wrap {
+    display: block !important;
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+  }
+
+  .product-modal-image-wrap img {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    object-fit: contain !important;
+  }
+
+  .product-modal-options {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+  }
+
+  .product-modal-info {
+    display: block !important;
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+    box-sizing: border-box !important;
+  }
+}
+
+/* FASHONE — RELATED PRODUCTS */
+
+.related-products {
+  width: 100%;
+  margin-top: 42px;
+  padding-top: 28px;
+  border-top: 1px solid #dedede;
+  flex-shrink: 0;
+}
+
+.related-products-heading h3 {
+  margin: 10px 0 22px;
+  font-size: 20px;
+  letter-spacing: 1.5px;
+  font-weight: 500;
+}
+
+.related-products-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px 14px;
+}
+
+.related-product-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #111;
+  text-align: left;
+  cursor: pointer;
+}
+
+.related-product-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  background: #f3f3f3;
+}
+
+.related-product-name {
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.related-product-price {
+  margin-top: 5px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.related-product-card:hover img {
+  opacity: 0.88;
+}
+
+@media (max-width: 700px) {
+  .related-products {
+    margin-top: 28px;
+  }
+
+  .related-products-grid {
+    gap: 18px 12px;
+  }
+}
+
+/* FASHONE — MINIMAL TRANSPARENT SCROLLBARS */
+
+/* Chrome, Edge, Safari */
+.product-modal-image-wrap::-webkit-scrollbar,
+.product-modal-options::-webkit-scrollbar,
+.product-modal-info::-webkit-scrollbar,
+.product-modal::-webkit-scrollbar {
+  width: 5px !important;
+  height: 5px !important;
+  background: transparent !important;
+}
+
+.product-modal-image-wrap::-webkit-scrollbar-track,
+.product-modal-options::-webkit-scrollbar-track,
+.product-modal-info::-webkit-scrollbar-track,
+.product-modal::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+.product-modal-image-wrap::-webkit-scrollbar-thumb,
+.product-modal-options::-webkit-scrollbar-thumb,
+.product-modal-info::-webkit-scrollbar-thumb,
+.product-modal::-webkit-scrollbar-thumb {
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+
+.product-modal-image-wrap:hover::-webkit-scrollbar-thumb,
+.product-modal-options:hover::-webkit-scrollbar-thumb,
+.product-modal-info:hover::-webkit-scrollbar-thumb,
+.product-modal:hover::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.18) !important;
+}
+
+/* Firefox */
+.product-modal-image-wrap,
+.product-modal-options,
+.product-modal-info,
+.product-modal {
+  scrollbar-width: thin !important;
+  scrollbar-color: transparent transparent !important;
+}
+
+.product-modal-image-wrap:hover,
+.product-modal-options:hover,
+.product-modal-info:hover,
+.product-modal:hover {
+  scrollbar-color: rgba(0, 0, 0, 0.18) transparent !important;
+}
+
+/* FASHONE — BOLDER MIDDLE PANEL BRAND HEADING */
+
+.product-modal-options .modal-brand-heading .eyebrow {
+  font-weight: 700 !important;
+}
+
+.product-modal-options .modal-brand-heading h3 {
+  font-weight: 700 !important;
+}
+
+.product-modal-options .modal-brand-heading > span {
+  font-weight: 600 !important;
+  color: #555 !important;
+}
+
+/* FASHONE — EXTRA BOLD BRAND HEADING */
+
+.product-modal-options .modal-brand-heading .eyebrow {
+  font-weight: 900 !important;
+  color: #111 !important;
+  letter-spacing: 2.2px !important;
+}
+
+.product-modal-options .modal-brand-heading h3 {
+  font-weight: 900 !important;
+  color: #000 !important;
+  -webkit-text-stroke: 0.45px currentColor;
+  letter-spacing: 3px !important;
+}
+
+.product-modal-options .modal-brand-heading > span {
+  font-weight: 800 !important;
+  color: #333 !important;
+  letter-spacing: 1.4px !important;
+  -webkit-text-stroke: 0.2px currentColor;
+}
+
+/* FASHONE Signature in Product Modal */
+.product-modal-options .modal-brand-heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.product-modal-options .modal-signature-logo {
+  display: block;
+  width: 145px;
+  max-width: 100%;
+  height: 65px;
+  object-fit: contain;
+  object-position: center;
+  margin: 0 auto;
+}
+
+.product-modal-options .modal-brand-tagline {
+  margin: 0;
+  font-family: "Cinzel", serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  line-height: 1.8;
+  color: #222;
+  text-align: center;
+}
+
+/* FASHONE signature below product highlights */
+.product-modal-options .modal-signature-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin: 32px 0 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e8e8e8;
+}
+
+.product-modal-options .modal-signature-logo {
+  display: block;
+  width: 140px;
+  max-width: 100%;
+  height: 55px;
+  object-fit: contain;
+  object-position: center;
+}
+
+.product-modal-options .modal-signature-footer p {
+  margin: 8px 0 0;
+  font-family: "Cinzel", serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  line-height: 1.8;
+  color: #222;
+}
+
+/* MIDDLE OPTIONS PANEL — NO SCROLLBAR */
+.product-modal-options {
+  overflow: hidden !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+/* Hide WebKit scrollbar */
+.product-modal-options::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+}
+
+/* Keep THE FASHONE EDIT centered */
+.product-modal-options .modal-brand-heading {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  text-align: center !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+}
+
+/* Signature and tagline centered below highlights */
+.product-modal-options .modal-signature-footer {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  margin: 24px 0 20px !important;
+  padding: 20px 8px 0 !important;
+  border-top: 1px solid #e8e8e8;
+}
+
+/* Signature image */
+.product-modal-options .modal-signature-logo {
+  display: block !important;
+  width: 140px !important;
+  max-width: 100% !important;
+  height: 55px !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  margin: 0 auto !important;
+}
+
+/* Tagline */
+.product-modal-options .modal-signature-footer p {
+  width: 100% !important;
+  margin: 8px 0 0 !important;
+  text-align: center !important;
+  font-family: "Cinzel", serif !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: 1.5px !important;
+  line-height: 1.8 !important;
+  color: #222 !important;
+}
+
+/* Reduce empty space above size selection */
+.product-modal-options .modal-brand-heading {
+  margin-top: 0 !important;
+  margin-bottom: 12px !important;
+  padding-top: 0 !important;
+  padding-bottom: 12px !important;
+  min-height: 0 !important;
+  height: auto !important;
+  gap: 0 !important;
+}
+
+/* Move the options content upward */
+.product-modal-options .modal-panel-size-section {
+  margin-top: 0 !important;
+  padding-top: 12px !important;
+}
+
+/* Reduce excess spacing between option sections */
+.product-modal-options .modal-panel-section {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 14px !important;
+  padding-bottom: 14px !important;
+}
+
+/* Keep signature footer compact */
+.product-modal-options .modal-signature-footer {
+  margin-top: 16px !important;
+  padding-top: 14px !important;
+}
+
+/* Make the two brand texts bolder and move them slightly up */
+.product-modal-options .modal-brand-heading .eyebrow {
+  font-weight: 800 !important;
+  color: #111 !important;
+  transform: translateY(-5px);
+  letter-spacing: 2px !important;
+}
+
+.product-modal-options .modal-brand-heading > span {
+  font-weight: 700 !important;
+  color: #222 !important;
+  transform: translateY(-5px);
+  letter-spacing: 1.5px !important;
+}
+
+/* FASHONE — Perfect spacing for middle options panel */
+.product-modal-options {
+  height: 100% !important;
+  min-height: 0 !important;
+  box-sizing: border-box !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-evenly !important;
+
+  padding-top: 14px !important;
+  padding-bottom: 14px !important;
+
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scrollbar-width: none !important;
+}
+
+.product-modal-options::-webkit-scrollbar {
+  display: none !important;
+}
+
+/* Remove unnecessary gaps around the heading */
+.product-modal-options .modal-brand-heading {
+  flex-shrink: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Let each section use balanced spacing */
+.product-modal-options .modal-panel-section {
+  flex-shrink: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 12px !important;
+  padding-bottom: 12px !important;
+}
+
+/* Keep signature footer aligned at the bottom naturally */
+.product-modal-options .modal-signature-footer {
+  flex-shrink: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 12px !important;
+}
+
+/* Align all middle-panel content towards the top */
+.product-modal-options {
+  justify-content: flex-start !important;
+}
+
+/* Remove extra vertical spacing inside each section */
+.product-modal-options .modal-panel-section {
+  justify-content: flex-start !important;
+}
+
+/* Keep labels and content aligned from the top */
+.product-modal-options .modal-panel-label {
+  align-items: center !important;
+}
+
+/* Keep heading at the top */
+.product-modal-options .modal-brand-heading {
+  justify-content: flex-start !important;
+  align-items: center !important;
+}
+
+/* Keep signature footer centered */
+.product-modal-options .modal-signature-footer {
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+/* FASHONE — Balanced middle column layout */
+.product-modal-options {
+  box-sizing: border-box !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  padding: 18px 22px 24px !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  scrollbar-width: none !important;
+}
+
+.product-modal-options::-webkit-scrollbar {
+  display: none !important;
+}
+
+/* Top brand heading */
+.product-modal-options .modal-brand-heading {
+  flex-shrink: 0 !important;
+  margin: 0 0 12px !important;
+  padding: 0 0 14px !important;
+  text-align: center !important;
+}
+
+/* Spread the option sections evenly using their available space */
+.product-modal-options .modal-panel-section {
+  flex-shrink: 0 !important;
+  margin: 0 !important;
+  padding: 18px 0 !important;
+}
+
+/* Keep section content aligned consistently */
+.product-modal-options .modal-panel-label {
+  margin-bottom: 14px !important;
+}
+
+/* Size buttons and size note */
+.product-modal-options .size-options {
+  margin-top: 12px !important;
+}
+
+.product-modal-options .modal-size-note {
+  margin-top: 12px !important;
+}
+
+/* Colour name and swatches */
+.product-modal-options .modal-selected-colour {
+  margin: 12px 0 16px !important;
+}
+
+/* Highlights list */
+.product-modal-options .product-highlights-list {
+  margin-top: 14px !important;
+  margin-bottom: 0 !important;
+  gap: 12px !important;
+}
+
+/* Signature footer at the bottom of the content */
+.product-modal-options .modal-signature-footer {
+  flex-shrink: 0 !important;
+  margin: 0 !important;
+  padding: 22px 0 12px !important;
+  text-align: center !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Balance the full height of the middle options column */
+.product-modal-options {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  box-sizing: border-box !important;
+  padding-top: 14px !important;
+  padding-bottom: 18px !important;
+}
+
+/* Top heading — give it a little more breathing room */
+.product-modal-options .modal-brand-heading {
+  flex-shrink: 0 !important;
+  margin: 0 0 8px !important;
+  padding: 0 0 16px !important;
+}
+
+/* Size, colour and highlights sections */
+.product-modal-options .modal-panel-section {
+  flex-shrink: 0 !important;
+  margin: 0 !important;
+  padding: 16px 0 !important;
+}
+
+/* Let the signature sit at the bottom instead of leaving
+   a large empty area underneath it */
+.product-modal-options .modal-signature-footer {
+  flex-shrink: 0 !important;
+  margin-top: auto !important;
+  margin-bottom: 8px !important;
+  padding-top: 18px !important;
+  padding-bottom: 8px !important;
+}
+
+/* Reduce the gap between Product Highlights and signature */
+.product-modal-options .modal-signature-footer {
+  margin-top: 8px !important;
+  margin-bottom: 8px !important;
+  padding-top: 14px !important;
+  padding-bottom: 8px !important;
+}
+
+/* Remove ugly hover box from panel arrows */
+.product-modal-options button:hover,
+.product-modal-options button:focus,
+.product-modal-options button:active {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Keep arrow shape unchanged */
+.product-modal-options button {
+  outline: none;
+}
+
+
+/* Remove only the hover box from the minimize/expand arrows */
+.options-panel-arrow:hover,
+.options-panel-arrow:focus,
+.options-panel-arrow:active {
+  background: transparent !important;
+  color: inherit !important;
+  box-shadow: none !important;
+  border-color: transparent !important;
+  outline: none !important;
+  border-radius: 0 !important;
+}
+
+/* FASHONE — Force arrows to stay clean on hover */
+.product-modal .options-panel-arrow,
+.product-modal .options-panel-arrow:hover,
+.product-modal .options-panel-arrow:focus,
+.product-modal .options-panel-arrow:focus-visible,
+.product-modal .options-panel-arrow:active,
+.product-modal.options-open .options-panel-arrow:hover {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  color: #111 !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* FASHONE — Transparent arrows, no hover colour change */
+.product-modal .options-panel-arrow,
+.product-modal .options-panel-arrow:hover,
+.product-modal .options-panel-arrow:focus,
+.product-modal .options-panel-arrow:focus-visible,
+.product-modal .options-panel-arrow:active {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: #111 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  filter: none !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Keep the arrow symbol black on hover */
+.product-modal .options-panel-arrow::before,
+.product-modal .options-panel-arrow:hover::before {
+  border-color: #111 !important;
+}
+
+/* FASHONE — Final arrow appearance override */
+.product-modal .options-panel-arrow,
+.product-modal .options-panel-arrow:hover,
+.product-modal .options-panel-arrow:focus,
+.product-modal .options-panel-arrow:focus-visible,
+.product-modal .options-panel-arrow:active,
+.product-modal.options-open .options-arrow-left:hover,
+.product-modal.options-open .options-arrow-right:hover {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 1px solid transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  color: #111 !important;
+  opacity: 1 !important;
+  filter: none !important;
+  outline: none !important;
+}
+
+.product-modal .options-panel-arrow::before,
+.product-modal .options-panel-arrow:hover::before,
+.product-modal .options-panel-arrow:focus::before,
+.product-modal .options-panel-arrow:active::before {
+  border-top-color: #111 !important;
+  border-right-color: #111 !important;
+}
+
+/* FASHONE — Remove arrow hover boxes completely */
+.product-modal .options-panel-arrow,
+.product-modal .options-panel-arrow:hover,
+.product-modal .options-panel-arrow:focus,
+.product-modal .options-panel-arrow:focus-visible,
+.product-modal .options-panel-arrow:active {
+  background: transparent !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  color: #111 !important;
+  outline: none !important;
+  filter: none !important;
+}
+
+/* Keep arrow symbols black in every state */
+.product-modal.options-open .options-arrow-left:hover,
+.product-modal.options-open .options-arrow-right:hover,
+.product-modal .options-arrow-reopen:hover {
+  background: transparent !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  color: #111 !important;
+}
+
+/* Preserve the existing arrow shape */
+.product-modal .options-panel-arrow::before {
+  border-top-color: #111 !important;
+  border-right-color: #111 !important;
+}
+
+/* FINAL FIX — Arrow hover background removal */
+.product-modal button.options-panel-arrow,
+.product-modal button.options-panel-arrow:hover,
+.product-modal button.options-panel-arrow:focus,
+.product-modal button.options-panel-arrow:active {
+  background: none !important;
+  background-color: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  color: #111 !important;
+  outline: none !important;
+  opacity: 1 !important;
+}
+
+/* Keep arrows transparent and black, even on hover */
+.product-modal .options-panel-arrow,
+.product-modal .options-panel-arrow:hover,
+.product-modal .options-panel-arrow:focus,
+.product-modal .options-panel-arrow:active {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: #000 !important;
+  box-shadow: none !important;
+  filter: none !important;
+  opacity: 1 !important;
+}
+
+/* Keep arrow symbols black on hover */
+.product-modal .options-panel-arrow:hover::before,
+.product-modal .options-panel-arrow:hover::after {
+  border-color: #000 !important;
+  color: #000 !important;
+}
+
+.hero-image {
+  transition: opacity 1.5s ease-in-out;
+  will-change: opacity;
+}
+
+/* Premium cinematic hero image animation */
+.hero-image-animated {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  animation: heroFadeIn 1.8s ease-in-out both;
+}
+
+.hero-image-animated .hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: heroSlowZoom 5.5s ease-out both;
+  will-change: transform, opacity;
+}
+
+@keyframes heroFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes heroSlowZoom {
+  from {
+    transform: scale(1.08);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-image-animated,
+  .hero-image-animated .hero-image {
+    animation: none;
+  }
+}
+
+.hero-title {
+  -webkit-text-stroke: 1px #fff;
+  text-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.65),
+    0 0 8px rgba(0, 0, 0, 0.25);
+}
+
+/* FASHONE Hero Quote - White Outline */
+.hero .hero-copy h1 {
+  -webkit-text-stroke: 1.2px #fff !important;
+  paint-order: stroke fill;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+/* FASHONE — SEARCH and BAG underline hover effect */
+.header-actions .icon-button,
+.header-actions .bag-button {
+  position: relative;
+  border-bottom: none;
+}
+
+.header-actions .icon-button::after,
+.header-actions .bag-button::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 100%;
+  bottom: 3px;
+  height: 1px;
+  background: currentColor;
+  transition: right 0.25s ease;
+}
+
+.header-actions .icon-button:hover::after,
+.header-actions .bag-button:hover::after {
+  right: 0;
+}

@@ -475,6 +475,23 @@ function BrandIntro() {
 function StoreApp() {
   const [products, setProducts] = useState(fallbackProducts);
   const [showIntro, setShowIntro] = useState(true);
+  const heroImages = [
+  "/images/hero1.jpeg",
+  "/images/hero2.jpeg",
+  "/images/hero3.jpeg",
+  "/images/hero4.jpeg",
+  "/images/hero.png",
+  ];
+
+  const [heroIndex, setHeroIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setHeroIndex((prevIndex) => (prevIndex + 1) % heroImages.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
   const [category, setCategory] = useState("All");
   const [search, setSearch] = useState("");
   const [cart, setCart] = useState(readSavedCart);
@@ -897,11 +914,13 @@ function StoreApp() {
 
         <main>
           <section className="hero" id="home">
-            <img
-              className="hero-image"
-              src="/images/hero.png"
-              alt="FASHONE premium men's fashion"
-            />
+            <div className="hero-image-animated" key={heroIndex}>
+              <img
+                className="hero-image"
+                src={heroImages[heroIndex]}
+                alt="FASHONE premium men's fashion"
+              />
+            </div>
 
             <div className="hero-shade" />
 
@@ -1346,7 +1365,6 @@ function StoreApp() {
               <div className="product-modal-options">
                 <div className="modal-brand-heading">
                   <p className="eyebrow">THE FASHONE EDIT</p>
-                  <h3>F A S H O N E</h3>
                   <span>SIMPLICITY IN EVERY DETAIL</span>
                 </div>
 
@@ -1441,7 +1459,6 @@ function StoreApp() {
                     <span>PRODUCT HIGHLIGHTS</span>
                     <span className="modal-panel-line" />
                   </div>
-
                   <ul className="product-highlights-list">
                     {(productHighlights[Number(selectedProduct.id)] || []).map(
                       (highlight, index) => (
@@ -1452,6 +1469,39 @@ function StoreApp() {
                       )
                     )}
                   </ul>
+                </div>
+
+                {/* PRODUCT CARE — ALWAYS VISIBLE */}
+                <div className="modal-panel-section">
+                  <div className="modal-panel-label">
+                    <span>PRODUCT CARE</span>
+                    <span className="modal-panel-line" />
+                  </div>
+
+                  <ul className="product-highlights-list">
+                    <li>
+                      <span className="highlight-check">✓</span>
+                      <span>Wash with similar colours.</span>
+                    </li>
+                    <li>
+                      <span className="highlight-check">✓</span>
+                      <span>Avoid harsh bleach.</span>
+                    </li>
+                    <li>
+                      <span className="highlight-check">✓</span>
+                      <span>Follow the garment care label.</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="modal-signature-footer">
+                  <img
+                    src="/images/fashone-signature.png"
+                    alt="FASHONE"
+                    className="modal-signature-logo"
+                  />
+
+                  <p>LESS NOISE. MORE STYLE.</p>
                 </div>
               </div>
 
@@ -1577,6 +1627,44 @@ function StoreApp() {
                 <p className="modal-small-note">
                   Easy everyday style. Made to be yours.
                 </p>
+                
+                {/* RELATED PRODUCTS */}
+                <section className="related-products">
+                  <div className="related-products-heading">
+                    <p className="eyebrow">FASHONE / DISCOVER MORE</p>
+                    <h3>YOU MAY ALSO LIKE</h3>
+                  </div>
+
+                  <div className="related-products-grid">
+                    {products
+                      .filter(
+                        (product) =>
+                          Number(product.id) !== Number(selectedProduct.id)
+                      )
+                      .slice(0, 4)
+                      .map((product) => (
+                        <button
+                          type="button"
+                          className="related-product-card"
+                          key={product.id}
+                          onClick={() => openProduct(product)}
+                        >
+                          <img
+                            src={product.image}
+                            alt={product.name}
+                            loading="lazy"
+                          />
+                          <span className="related-product-name">
+                            {product.name}
+                          </span>
+                          <span className="related-product-price">
+                            {money(product.price)}
+                          </span>
+                        </button>
+                      ))}
+                  </div>
+                </section>
+
               </div>
 
               {/* SIZE GUIDE */}
