@@ -7211,3 +7211,169 @@ body:has(.product-modal-backdrop) {
 .header-actions .bag-button:hover::after {
   right: 0;
 }
+
+/* =========================================
+   FASHONE — SHOPPING BAG DRAWER FIX
+   ========================================= */
+
+/* Keep the bag and its backdrop above the navbar */
+.drawer-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 10001 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: stretch !important;
+}
+
+/* Keep the bag above all page content */
+.cart-drawer {
+  position: relative !important;
+  z-index: 10002 !important;
+
+  width: min(480px, 100%) !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  max-height: 100vh !important;
+  max-height: 100dvh !important;
+
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+
+  background: #fff !important;
+  color: #111 !important;
+  font-family: "DM Sans", sans-serif !important;
+}
+
+/* Match the website's existing typography */
+.cart-drawer button,
+.cart-drawer p,
+.cart-drawer span,
+.cart-drawer strong,
+.cart-drawer input {
+  font-family: "DM Sans", sans-serif;
+}
+
+.cart-drawer h2,
+.cart-drawer h3 {
+  font-family: var(--serif, "Cormorant Garamond"), serif;
+}
+
+/* Keep the heading and close button aligned */
+.drawer-heading {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.drawer-heading h2 {
+  margin: 0;
+  font-size: 32px;
+  line-height: 1.2;
+}
+
+.cart-drawer .close-button {
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+  cursor: pointer;
+  color: #111;
+  background: transparent;
+}
+
+/* Center the empty-bag message neatly */
+.cart-drawer .empty-cart {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  text-align: center;
+}
+
+.cart-drawer .empty-cart p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+/* Keep the continue-shopping button consistent */
+.cart-drawer .empty-cart .primary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 14px 24px;
+  border: 1px solid #111;
+  background: #111;
+  color: #fff;
+  font-family: "DM Sans", sans-serif;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+}
+
+/* Mobile drawer */
+@media (max-width: 600px) {
+  .cart-drawer {
+    width: 100% !important;
+    padding: 22px 18px !important;
+  }
+
+  .drawer-heading h2 {
+    font-size: 28px;
+  }
+}
+
+/* FASHONE — Match Bag Drawer Typography with Policy Pages */
+
+.cart-drawer,
+.cart-drawer * {
+  font-family: 'DM Sans', sans-serif !important;
+}
+
+/* Bag drawer main heading */
+.cart-drawer h1,
+.cart-drawer h2,
+.cart-drawer .cart-title,
+.cart-drawer .bag-title {
+  font-family: var(--display), serif !important;
+  font-weight: 400 !important;
+}
+
+/* Keep item names readable and premium */
+.cart-drawer .cart-item-name,
+.cart-drawer .cart-item-title {
+  font-family: 'DM Sans', sans-serif !important;
+  font-weight: 500 !important;
+}
+
+/* Buttons and labels */
+.cart-drawer button,
+.cart-drawer input,
+.cart-drawer label {
+  font-family: 'DM Sans', sans-serif !important;
+}
+
+/* FASHONE — Premium Bag Heading Colours */
+
+.cart-drawer h1,
+.cart-drawer h2,
+.cart-drawer .cart-title,
+.cart-drawer .bag-title {
+  color: #111 !important;
+}
+
+/* If YOUR BAG uses separate spans */
+.cart-drawer h1 span,
+.cart-drawer h2 span,
+.cart-drawer .cart-title span,
+.cart-drawer .bag-title span {
+  color: #888 !important;
+}
+
